@@ -12,7 +12,7 @@ import alertIcon from "../assets/alert.png";
 const menuItems = [
   { title: "홍보 영상", icon: promoVideoIcon, path: "/promo" },
   { title: "길 안내", icon: mapIcon, path: "/map" },
-  { title: "인생 네컷", icon: photoIcon, path: "/photo" },
+  { title: "테미 네컷", icon: photoIcon, path: "/photo" },
   { title: "챗봇", icon: chatbotIcon, path: "/chatbot" },
   { title: "O/X 퀴즈", icon: quizIcon, path: "/quiz" },
   { title: "메모리 게임", icon: memoryIcon, path: "/memory" },

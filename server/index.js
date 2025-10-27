@@ -14,7 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 app.use(cors());
 app.use(bodyParser.json({ limit: "15mb" }));
 
-// ✅ Content Security Policy (필요한 리소스만 허용)
+// Content Security Policy (필요한 리소스만 허용)
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -30,10 +30,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ 정적 파일 서빙 (폰트, 이미지)
+// 정적 파일 서빙 (폰트, 이미지)
 app.use("/assets", express.static(path.join(__dirname, "../src/assets")));
 
-// ✅ AWS S3 클라이언트 설정
+// AWS S3 클라이언트 설정
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -42,7 +42,7 @@ const s3 = new S3Client({
   },
 });
 
-// ✅ [POST] /upload — 프론트에서 받은 이미지 업로드
+// [POST] /upload — 프론트에서 받은 이미지 업로드
 app.post("/upload", async (req, res) => {
   try {
     const { image } = req.body;
@@ -73,8 +73,8 @@ app.post("/upload", async (req, res) => {
   }
 });
 
-// ✅ 테스트용 기본 경로
-app.get("/", (req, res) => res.send("S3 Upload Server is Running ✅"));
+// 테스트용 기본 경로
+app.get("/", (req, res) => res.send("S3 Upload Server is Running "));
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(` Server running on port ${PORT}`));

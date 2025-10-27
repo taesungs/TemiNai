@@ -1,33 +1,38 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
+import QRCode from "react-qr-code";
 import CameraPreview from "../components/CameraPreview";
 import PhotoBoothLayout from "../components/PhotoBoothLayout";
 import axios from "axios";
 
 const PhotoBooth = () => {
   const [photos, setPhotos] = useState([]);
-  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
   const canvasRef = useRef(null);
+  const cameraRef = useRef(null);
 
-  const handleCapture = (dataUrl) => {
-    if (photos.length < 4) setPhotos([...photos, dataUrl]);
+  // 📸 CameraPreview에서 4컷 촬영 완료 시 자동 호출
+  const handleAllPhotosCaptured = (capturedPhotos) => {
+    setPhotos(capturedPhotos);
+    mergePhotos(capturedPhotos);
   };
 
-  // ✅ 4컷 세로 합성
-  const mergePhotos = () => {
+  // 🎞️ 4컷 세로 합성
+  const mergePhotos = (photoArray) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const width = 600;
     const gap = 10;
     const imgHeight = 800;
     canvas.width = width;
-    canvas.height = photos.length * imgHeight + (photos.length - 1) * gap;
+    canvas.height =
+      photoArray.length * imgHeight + (photoArray.length - 1) * gap;
 
-    photos.forEach((src, i) => {
+    photoArray.forEach((src, i) => {
       const img = new Image();
       img.src = src;
       img.onload = () => {
         ctx.drawImage(img, 0, i * (imgHeight + gap), width, imgHeight);
-        if (i === photos.length - 1) {
+        if (i === photoArray.length - 1) {
           const finalImage = canvas.toDataURL("image/png");
           handleUpload(finalImage);
         }
@@ -35,44 +40,54 @@ const PhotoBooth = () => {
     });
   };
 
-  // ✅ S3 업로드
+  // ☁️ S3 업로드
   const handleUpload = async (mergedImage) => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_SERVER_DOMAIN}/upload`,
-        { image: mergedImage } // 서버에서 image로 받음
+        { image: mergedImage }
       );
-      setUploadedUrl(res.data.url);
+      setQrUrl(res.data.url);
     } catch (err) {
       console.error("Upload failed:", err);
     }
   };
 
+  // 📷 촬영 시작
+  const startShooting = () => {
+    cameraRef.current.startAutoCapture();
+  };
+
   return (
     <div className="flex flex-col items-center mt-8 space-y-6">
       <h1 className="text-2xl font-bold">🎞 Temi 인생네컷</h1>
-      <CameraPreview onCapture={handleCapture} />
-      <PhotoBoothLayout photos={photos} />
+
+      <CameraPreview
+        ref={cameraRef}
+        onAllPhotosCaptured={handleAllPhotosCaptured}
+      />
+
       <canvas ref={canvasRef} className="hidden" />
-      {photos.length === 4 && (
+
+      {photos.length === 0 && !qrUrl && (
         <button
-          onClick={mergePhotos}
-          className="bg-blue-500 text-white px-5 py-2 rounded-lg"
+          onClick={startShooting}
+          className="bg-pink-500 text-white px-5 py-3 rounded-lg text-lg"
         >
-          📤 4컷 저장 & 업로드
+          📸 촬영 시작
         </button>
       )}
-      {uploadedUrl && (
-        <div className="mt-4 text-center">
-          <p>✅ 업로드 완료!</p>
-          <a
-            href={uploadedUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-600 underline"
-          >
-            결과 보기
-          </a>
+
+      {qrUrl && (
+        <div className="mt-6 text-center">
+          <p className="text-green-600 font-semibold mb-3">
+            촬영 및 업로드 완료!
+          </p>
+          <PhotoBoothLayout photos={photos} />
+          <QRCode value={qrUrl} size={200} />
+          <p className="mt-2 text-gray-600 text-sm">
+            QR로 스캔하여 사진 다운로드
+          </p>
         </div>
       )}
     </div>
