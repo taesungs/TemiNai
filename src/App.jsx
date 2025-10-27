@@ -2,12 +2,14 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuGrid from "./components/MenuGrid";
 import PromoVideo from "./pages/PromoVideo";
 import MapGuide from "./pages/MapGuide";
-import PhotoBooth from "./pages/PhotoBooth";
 import Chatbot from "./pages/Chatbot";
 import Quiz from "./pages/Quiz";
 import MemoryGame from "./pages/MemoryGame";
 import Recommendation from "./pages/Recommendation";
 import AlertSystem from "./pages/AlertSystem";
+import MainPage from "./photobooth/MainPage";
+import SelectPage from "./photobooth/SelectPage";
+import PhotoBooth from "./pages/PhotoBooth";
 
 function App() {
   return (
@@ -17,7 +19,11 @@ function App() {
           <Route path="/" element={<MenuGrid />} />
           <Route path="/promo" element={<PromoVideo />} />
           <Route path="/map" element={<MapGuide />} />
-          <Route path="/photo" element={<PhotoBooth />} />
+
+          <Route path="/photo" element={<MainPage />} />
+          <Route path="/select" element={<SelectPage />} />
+          <Route path="/booth" element={<PhotoBooth />} />
+
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/memory" element={<MemoryGame />} />
