@@ -8,7 +8,13 @@ export default function QuizPlay() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const category = state?.category || "busan";
-  const questions = QuizData?.[category];
+
+  //  랜덤으로 3문항만 추출
+  const allQuestions = QuizData?.[category] || [];
+  const questions = React.useMemo(() => {
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  }, [category]);
 
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
@@ -59,8 +65,6 @@ export default function QuizPlay() {
   }, [current]);
 
   // 정답 판정 로직
-
-
   const handleAnswer = (choice) => {
     clearTimer();
     const q = questions[current];
@@ -69,11 +73,9 @@ export default function QuizPlay() {
     const userAnswer = choice === "O";
     const isCorrect = userAnswer === q.answer;
 
-    // 현재 점수 임시 저장용 변수 (state 반영 전에 계산)
     let newScore = score;
 
     if (choice === null) {
-      // ⏰ 시간 초과 처리
       setFeedback({
         type: "wrong",
         message: "⏰ 시간 초과!",
@@ -95,29 +97,24 @@ export default function QuizPlay() {
       });
     }
 
-    // 시간초과면 3초, 일반 정답/오답은 2초 후 다음으로
     const delay = choice === null ? 3000 : 2000;
 
     setTimeout(() => {
       setFeedback(null);
-
-      // 다음 문제로 넘어가기 전에 next index 계산
       const next = current + 1;
 
       if (next < questions.length) {
         setCurrent(next);
       } else {
-        // 모든 문제 종료 → 결과 페이지 이동
         navigate("/quiz/result", {
           state: {
-            score: newScore, // ✅ 최신 점수 정확히 전달
+            score: newScore,
             total: questions.length,
           },
         });
       }
     }, delay);
   };
-
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white relative">
@@ -128,7 +125,6 @@ export default function QuizPlay() {
         time={time}
       />
 
-      {/* 피드백 표시 */}
       {feedback && (
         <QuizFeedback
           type={feedback.type}
