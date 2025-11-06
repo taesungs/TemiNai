@@ -65,7 +65,7 @@ const QuizData = {
     {
      question: "부산의 대표 불꽃축제는 매월 3월에 열린다. ",
      answer: false,
-     explanation: "부산 광안리 해수욕장에서 매년 대략 11월 초에 불꽃축제를 보실 수 있습니다",
+     explanation: "광안리 해수욕장에서 매년 대략 11월 초에 불꽃축제를 보실 수 있습니다",
     },
 
 
@@ -99,7 +99,7 @@ const QuizData = {
     {
       question: "인하대학교의 '인하'는 '인천 하와이'의 줄임말이다",
       answer: true,
-      explanation: "‘인하’는 ‘인천과 하와이’의 줄임말로, 하와이 교민의 지원으로 설립된 대학입니다.",
+      explanation: "'인천과 하와이'의 줄임말로, 하와이 교민의 지원으로 설립된 대학입니다.",
     },
 
     {

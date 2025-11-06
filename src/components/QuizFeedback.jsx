@@ -26,7 +26,7 @@ export default function QuizFeedback({ type, message, explanation }) {
 
           {/* 설명 (오답일 때만 표시) */}
           {!isCorrect && (
-            <p className="text-[25px] font-medium text-white/90 max-w-[420px] leading-snug">
+            <p className="text-[25px] font-medium text-white/90 max-w-[500px] leading-snug">
               {explanation}
             </p>
           )}

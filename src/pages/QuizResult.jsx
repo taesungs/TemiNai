@@ -50,7 +50,7 @@ export default function QuizResult() {
         <div className="flex flex-col justify-center items-start text-left">
           <p className="text-[40px] font-extrabold mb-[0px]">퀴즈 완료!!</p>
           <p className="text-[26px] font-extrabold mt-[0px] mb-[6px]">
-            열심히 참여해주셔서 정말 고마워요!!
+            열심히 참여해주셔서 정말 고마워요
           </p>
 
           <p className="text-[26px] font-semibold">
@@ -58,7 +58,7 @@ export default function QuizResult() {
             <span className="font-bold text-white">{total}</span>문제 중{" "}
             <span className="font-bold text-white">{score}</span>문제를 맞혔습니다!
           </p>
-          <p className="text-[30px] font-semibold">제가 간식을 준비했어요! 🍪</p>
+          <p className="text-[30px] font-semibold">제가 간식을 준비했어요!! 🍪</p>
         </div>
 
         {/* 오른쪽 로봇 이미지 */}
