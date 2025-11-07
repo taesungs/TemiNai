@@ -1,7 +1,7 @@
 import React, {
-  useRef,
-  useEffect,
   forwardRef,
+  useEffect,
+  useRef,
   useImperativeHandle,
   useState,
 } from "react";
@@ -10,74 +10,94 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [countdown, setCountdown] = useState(null);
-  const countdownRef = useRef(null);
-  const [capturing, setCapturing] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
-  // 카메라 스트림 시작
   useEffect(() => {
-    let stream;
-    (async () => {
-      try {
-        if (videoRef.current?.srcObject) return; // 중복 방지
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false,
-        });
-        if (videoRef.current) videoRef.current.srcObject = stream;
-      } catch (e) {
-        console.error("Camera access error:", e);
-      }
-    })();
-
-    return () => {
-      if (stream) stream.getTracks().forEach((track) => track.stop());
-    };
+    startCamera();
   }, []);
 
-  // 카운트다운 표시
-  useEffect(() => {
-    if (countdown === null) return;
-    if (countdown === 0) {
-      setCountdown(null);
-      return;
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
+      });
+      videoRef.current.srcObject = stream;
+    } catch (err) {
+      console.error("Camera access error:", err);
     }
-    countdownRef.current = setTimeout(
-      () => setCountdown((prev) => prev - 1),
-      1000
-    );
-    return () => clearTimeout(countdownRef.current);
-  }, [countdown]);
-
-  // 5초 간격으로 자동 4컷 촬영
-  const startAutoCapture = async () => {
-    if (capturing) return;
-    setCapturing(true);
-    const shots = [];
-
-    for (let i = 0; i < 4; i++) {
-      setCountdown(5);
-      await new Promise((r) => setTimeout(r, 5000));
-      const shot = captureFrame();
-      shots.push(shot);
-      if (i < 3) await new Promise((r) => setTimeout(r, 500)); // 간격
-    }
-
-    setCapturing(false);
-    if (onAllPhotosCaptured) onAllPhotosCaptured(shots);
   };
 
-  // 부모에서 촬영 시작을 호출 가능
-  useImperativeHandle(ref, () => ({ startAutoCapture }));
+  // 📸 5초 간격마다 사진 1장씩 총 4장
+  useImperativeHandle(ref, () => ({
+    startAutoCapture: async () => {
+      if (isCapturing) return;
+      setIsCapturing(true);
 
-  // 단일 프레임 캡처
-  const captureFrame = () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/png");
+      const captures = [];
+
+      for (let i = 0; i < 4; i++) {
+        // 5초 카운트
+        for (let t = 5; t > 0; t--) {
+          setCountdown(t);
+          await new Promise((res) => setTimeout(res, 1000));
+        }
+
+        // 플래시 효과
+        setFlash(true);
+        await new Promise((res) => setTimeout(res, 150));
+        setFlash(false);
+
+        // 실제 촬영
+        const photo = await capturePhoto();
+        captures.push(photo);
+
+        // 카운트 초기화
+        setCountdown(null);
+
+        // 다음 촬영까지 1초 쉬기 (플래시 후 안정 시간)
+        if (i < 3) await new Promise((res) => setTimeout(res, 1000));
+      }
+
+      onAllPhotosCaptured(captures);
+      setIsCapturing(false);
+    },
+  }));
+
+  // 🎞 0.78 비율(프레임용)로 캡처
+  const capturePhoto = () => {
+    return new Promise((resolve) => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const targetW = 640;
+      const targetH = 820;
+
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d");
+
+      const videoRatio = video.videoWidth / video.videoHeight;
+      const targetRatio = targetW / targetH;
+
+      let sx, sy, sWidth, sHeight;
+
+      if (videoRatio > targetRatio) {
+        sHeight = video.videoHeight;
+        sWidth = sHeight * targetRatio;
+        sx = (video.videoWidth - sWidth) / 2;
+        sy = 0;
+      } else {
+        sWidth = video.videoWidth;
+        sHeight = sWidth / targetRatio;
+        sx = 0;
+        sy = (video.videoHeight - sHeight) / 2;
+      }
+
+      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+      const photoData = canvas.toDataURL("image/png");
+      resolve(photoData);
+    });
   };
 
   return (
@@ -86,16 +106,30 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         ref={videoRef}
         autoPlay
         playsInline
-        muted
-        className="w-[320px] rounded-xl shadow"
+        className="rounded-xl border shadow-md"
+        style={{ width: "320px", height: "410px", objectFit: "cover" }}
       />
-      <canvas ref={canvasRef} className="hidden" />
-      {countdown !== null && countdown > 0 && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/40">
-          <span className="text-white text-[96px] font-bold drop-shadow-lg select-none">
-            {countdown}
-          </span>
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {/* 카운트다운 오버레이 */}
+      {countdown && (
+        <div
+          className="absolute flex items-center justify-center text-[100px] font-extrabold text-white bg-black bg-opacity-40 rounded-full transition-all duration-300"
+          style={{
+            width: "220px",
+            height: "220px",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          {countdown}
         </div>
+      )}
+
+      {/* 플래시 효과 */}
+      {flash && (
+        <div className="absolute inset-0 bg-white opacity-90 animate-pulse"></div>
       )}
     </div>
   );

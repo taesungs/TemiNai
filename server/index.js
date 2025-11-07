@@ -1,18 +1,19 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
-dotenv.config();
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(cors());
-app.use(bodyParser.json({ limit: "15mb" }));
+app.use(bodyParser.json({ limit: "50mb" }));
 
 // Content Security Policy (필요한 리소스만 허용)
 app.use((req, res, next) => {
@@ -37,8 +38,8 @@ app.use("/assets", express.static(path.join(__dirname, "../src/assets")));
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -57,7 +58,7 @@ app.post("/upload", async (req, res) => {
 
     // S3 업로드
     const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET,
+      Bucket: process.env.S3_BUCKET_NAME,
       Key: key,
       Body: buffer,
       ContentType: "image/png",
@@ -65,7 +66,7 @@ app.post("/upload", async (req, res) => {
     await s3.send(command);
 
     // URL 반환
-    const url = `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
     res.json({ url });
   } catch (error) {
     console.error("S3 Upload Error:", error);
@@ -78,3 +79,7 @@ app.get("/", (req, res) => res.send("S3 Upload Server is Running "));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
+
+console.log("✅ REGION:", process.env.AWS_REGION);
+console.log("✅ BUCKET:", process.env.S3_BUCKET_NAME);
+console.log("✅ ACCESS:", process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing");
