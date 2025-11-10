@@ -55,7 +55,7 @@ const PhotoBooth = () => {
       const ratioX = frameWidth / 1630;
       const ratioY = frameHeight / 1146;
 
-      // ✅ 수정된 최종 좌표
+      // 수정된 최종 좌표
       const basePositions = [
         { x: 875, y: 112, w: 278, h: 357 }, // 좌상
         { x: 1220, y: 112, w: 278, h: 357 }, // 우상

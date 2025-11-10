@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainPage.css";
 import robotImg from "../assets/robotimg.png"; // 업로드한 로봇 이미지 경로 맞게 조정
+import backImg from "../assets/back.png";
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -12,6 +13,28 @@ const MainPage = () => {
 
   return (
     <div className="main-container">
+      {/* 🔹 홈 버튼 (왼쪽 상단 고정, 화살표 2개) */}
+      <div
+        onClick={() => navigate("/")}
+        className="absolute top-[100px] left-[200px] flex flex-col items-center cursor-pointe "
+      >
+        {/* 홈 텍스트 */}
+        <span className="text-[30px] font-bold text-gray-700">홈</span>
+
+        {/* 화살표 두 개 */}
+        <div className="flex flex-row gap-[4px] mb-1">
+          <img
+            src={backImg}
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
+          />
+          <img
+            src={backImg}
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
+          />
+        </div>
+      </div>
       <h1 className="title">인생네컷</h1>
 
       <div className="card">

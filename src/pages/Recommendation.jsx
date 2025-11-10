@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { BsHandIndex } from "react-icons/bs";
+import backImg from "../assets/back.png";
+import { useNavigate } from "react-router-dom";
 
 const Recommendation = () => {
   const [tab, setTab] = useState("맛집");
   const [selected, setSelected] = useState(null);
+  const navigate = useNavigate();
 
   const restaurantList = [
     {
@@ -60,6 +63,28 @@ const Recommendation = () => {
         alignItems: "center",
       }}
     >
+      {/* 🔹 홈 버튼 (왼쪽 상단 고정, 화살표 2개) */}
+      <div
+        onClick={() => navigate("/")}
+        className="absolute top-[100px] left-[200px] flex flex-col items-center cursor-pointer"
+      >
+        {/* 홈 텍스트 */}
+        <span className="text-[30px] font-bold text-gray-700">홈</span>
+
+        {/* 화살표 두 개 */}
+        <div className="flex flex-row gap-[4px] mb-1">
+          <img
+            src={backImg}
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
+          />
+          <img
+            src={backImg}
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
+          />
+        </div>
+      </div>
       {/* 제목 */}
       <h1
         style={{
@@ -80,6 +105,7 @@ const Recommendation = () => {
           justifyContent: "flex-start", // 왼쪽 정렬
           gap: "0px", // 버튼 사이 간격 제거
           marginBottom: "0",
+          marginTop: "50px",
         }}
       >
         {["맛집", "관광지"].map((label, idx) => (
@@ -236,8 +262,8 @@ const Recommendation = () => {
             >
               <div
                 style={{
-                  width: "120px",
-                  height: "120px",
+                  width: "240px",
+                  height: "240px",
                   margin: "0 auto",
                   backgroundColor: "#d3d3d3",
                   borderRadius: "16px",
@@ -258,23 +284,23 @@ const Recommendation = () => {
             <div
               style={{
                 flex: "2",
-                fontSize: "16px",
+                fontSize: "24px",
                 color: "#333",
                 lineHeight: "1.8",
               }}
             >
               <div
-                style={{ borderBottom: "2px solid #2EA3B7", padding: "4px 0" }}
+                style={{ borderBottom: "2px solid #2EA3B7", padding: "10px 0" }}
               >
                 <b>주소</b> {selected.address}
               </div>
               <div
-                style={{ borderBottom: "2px solid #2EA3B7", padding: "4px 0" }}
+                style={{ borderBottom: "2px solid #2EA3B7", padding: "10px 0" }}
               >
                 <b>영업시간</b> {selected.time}
               </div>
               <div
-                style={{ borderBottom: "2px solid #2EA3B7", padding: "4px 0" }}
+                style={{ borderBottom: "2px solid #2EA3B7", padding: "10px 0" }}
               >
                 <b>전화번호</b> {selected.phone}
               </div>

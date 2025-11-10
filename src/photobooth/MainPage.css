@@ -4,15 +4,15 @@
   align-items: center;
   justify-content: flex-start; /* 화면 위쪽 정렬 */
   height: 100vh;
-  padding-top: 80px; /* 제목 위로 여백 확보 */
+  padding-top: 60px; /* 제목 위로 여백 확보 */
   font-family: "Pretendard", sans-serif;
 }
 
 .title {
-  font-size: 32px;
+  font-size: 60px;
   font-weight: 800;
   color: #0d98ba;
-  margin-bottom: 80px; /* 카드와 간격 */
+  margin-bottom: 16px; /* 카드와 간격 */
 }
 
 .card {
@@ -20,16 +20,16 @@
   align-items: center;
   justify-content: flex-start;
   background-color: #0d98ba;
-  border-radius: 36px;
-  width: 680px; /* 기존 360 → 확장 */
-  height: 360px; /* 기존 180 → 확장 */
+  border-radius: 90px;
+  width: 1200px; /* 기존 360 → 확장 */
+  height: 550px; /* 기존 180 → 확장 */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
   padding: 25px 40px;
 }
 
 .robot-icon {
-  width: 180px; /* 기존 70 → 확대 */
-  height: 180px;
+  width: 320px; /* 기존 70 → 확대 */
+  height: 320px;
   margin-right: 25px;
 }
 
@@ -38,16 +38,17 @@
   flex-direction: column;
   color: white;
   flex: 1;
+  margin-left: 100px;
 }
 
 .welcome-text {
-  font-size: 26px;
+  font-size: 35px;
   font-weight: 600;
   margin-bottom: 8px;
 }
 
 .sub-text {
-  font-size: 26px;
+  font-size: 35px;
   margin-bottom: 20px;
 }
 
@@ -57,11 +58,14 @@
   border: none;
   border-radius: 28px;
   padding: 10px 22px;
-  font-size: 26px;
+  font-size: 35px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
   transition: opacity 0.2s ease;
+  margin-top: 40px;
+  width: 400px;
+  margin-left: 100px;
 }
 
 .participate-btn:hover {
