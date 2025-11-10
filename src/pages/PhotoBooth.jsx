@@ -4,7 +4,7 @@ import QRCode from "react-qr-code";
 import CameraPreview from "../components/CameraPreview";
 import axios from "axios";
 
-// ✅ 테마 프레임 이미지 import
+// 프레임 이미지
 import basicFrame from "../assets/themes/basic.png";
 import busanFrame from "../assets/themes/busan.png";
 import coshowFrame from "../assets/themes/coshow.png";
@@ -21,24 +21,21 @@ const PhotoBooth = () => {
   const [_, setPhotos] = useState([]);
   const [qrUrl, setQrUrl] = useState("");
   const [theme, setTheme] = useState("basic");
-  const [isFinished, setIsFinished] = useState(false); //  촬영 완료 여부
+  const [isFinished, setIsFinished] = useState(false);
   const canvasRef = useRef(null);
   const cameraRef = useRef(null);
   const [searchParams] = useSearchParams();
 
-  // URL에서 테마 읽기
   useEffect(() => {
     const selected = searchParams.get("theme") || "basic";
     setTheme(selected);
   }, [searchParams]);
 
-  //  4컷 촬영 완료 시
   const handleAllPhotosCaptured = (capturedPhotos) => {
     setPhotos(capturedPhotos);
     mergeWithThemeFrame(capturedPhotos, theme);
   };
 
-  //  선택된 테마 프레임에 사진 합성
   const mergeWithThemeFrame = async (photoArray, themeName) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -47,47 +44,60 @@ const PhotoBooth = () => {
     frame.src = frames[themeName] || frames.basic;
 
     frame.onload = async () => {
-      const frameWidth = 800;
-      const frameHeight = 1000; // 여백 조금 확장
+      // 템플릿 원본 비율 (1630×1146)
+      const frameWidth = 816;
+      const frameHeight = (1146 / 1630) * frameWidth;
       canvas.width = frameWidth;
       canvas.height = frameHeight;
 
-      // 프레임 먼저 그림
       ctx.drawImage(frame, 0, 0, frameWidth, frameHeight);
 
-      //  사진 4컷 위치를 프레임에 맞게 조정 (살짝 아래로 내림, 좌우 정렬 개선)
-      const positions = [
-        { x: 310, y: 150, w: 220, h: 290 },
-        { x: 560, y: 150, w: 220, h: 290 },
-        { x: 310, y: 480, w: 220, h: 290 },
-        { x: 560, y: 480, w: 220, h: 290 },
+      const ratioX = frameWidth / 1630;
+      const ratioY = frameHeight / 1146;
+
+      // ✅ 수정된 최종 좌표
+      const basePositions = [
+        { x: 875, y: 112, w: 278, h: 357 }, // 좌상
+        { x: 1220, y: 112, w: 278, h: 357 }, // 우상
+        { x: 875, y: 582, w: 278, h: 357 }, // 좌하
+        { x: 1220, y: 582, w: 278, h: 357 }, // 우하
       ];
 
-      // 사진 삽입
-      for (let i = 0; i < photoArray.length; i++) {
+      const positions = basePositions.map((p) => ({
+        x: p.x * ratioX,
+        y: p.y * ratioY,
+        w: p.w * ratioX,
+        h: p.h * ratioY,
+      }));
+
+      // 각 사진 삽입
+      for (let i = 0; i < Math.min(photoArray.length, 4); i++) {
         const img = new Image();
         img.src = photoArray[i];
+
         await new Promise((resolve) => {
           img.onload = () => {
             const { x, y, w, h } = positions[i];
-            ctx.drawImage(img, x, y, w, h);
+
+            // 비율 유지 + 프레임에 딱 맞게 꽉 채움 (cover 방식)
+            const ratio = Math.max(w / img.width, h / img.height);
+            const newW = img.width * ratio;
+            const newH = img.height * ratio;
+            const offsetX = x + (w - newW) / 2;
+            const offsetY = y + (h - newH) / 2;
+
+            ctx.drawImage(img, offsetX, offsetY, newW, newH);
             resolve();
           };
         });
       }
 
-      // 최종 이미지 변환 후 업로드
       const finalImage = canvas.toDataURL("image/png");
       uploadToS3(finalImage);
-      setIsFinished(true); //  촬영 완료 상태 변경
-    };
-
-    frame.onerror = () => {
-      console.error(`❌ 테마 이미지 로드 실패: ${themeName}`);
+      setIsFinished(true);
     };
   };
 
-  //  S3 업로드
   const uploadToS3 = async (mergedImage) => {
     try {
       const res = await axios.post(
@@ -100,7 +110,6 @@ const PhotoBooth = () => {
     }
   };
 
-  // 촬영 시작
   const startShooting = () => {
     cameraRef.current.startAutoCapture();
   };
@@ -108,10 +117,9 @@ const PhotoBooth = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white font-[Pretendard] space-y-6 relative">
       <h1 className="text-2xl font-bold text-sky-600 mt-6">
-        🎞 Temi 인생네컷 - {theme.toUpperCase()} 테마
+        🎞 테미네컷 - {theme.toUpperCase()} 테마
       </h1>
 
-      {/*  촬영 중일 때만 카메라 보이기 */}
       {!isFinished && (
         <>
           <CameraPreview
@@ -129,7 +137,6 @@ const PhotoBooth = () => {
 
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* 촬영 완료 후 완성 이미지 + QR 코드 */}
       {isFinished && qrUrl && (
         <div className="flex flex-col items-center gap-3 mt-4">
           <p className="text-green-600 font-semibold">촬영 및 업로드 완료!</p>
