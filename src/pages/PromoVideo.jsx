@@ -13,7 +13,7 @@ export default function PromoVideo() {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-start bg-white font-sans relative">
       {/* 중앙 제목 */}
-      <h1 className="text-[48px] font-extrabold text-[#0D98BA] mt-10">
+      <h1 className="text-[50px] font-extrabold text-[#0D98BA] mt-10">
         홍보 영상
       </h1>
 
