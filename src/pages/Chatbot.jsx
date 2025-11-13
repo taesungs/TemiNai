@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import botImg from "../assets/robot.png";
 import micImg from "../assets/microphone.png";
 import sendImg from "../assets/send.png";
-// import { sendQuestion } from "../api/request.jsx";
 import backImg from "../assets/back.png";
 import { useNavigate } from "react-router-dom";
 
@@ -15,8 +14,36 @@ export default function ChatBot({ title }) {
   const [loading, setLoading] = useState(false);
   const chatEndRef = useRef(null);
 
+  // ✅ Temi SDK에서 음성 인식(STT) 결과를 받는 함수 (Android -> JS)
+  useEffect(() => {
+    window.receiveSpeech = function (text) {
+      console.log("🟢 Temi에서 받은 음성 인식:", text);
+      setInput(text);
+    };
+    return () => {
+      delete window.receiveSpeech;
+    };
+  }, []);
+
+  // ✅ Temi 로봇에게 텍스트를 음성으로 말하게 시키는 함수
+  const sendToTemi = (text) => {
+    try {
+      if (window.TemiInterface && window.TemiInterface.speakText) {
+        // Temi SDK의 TTS 호출
+        window.TemiInterface.speakText(text);
+        console.log("🔵 Temi에게 말하기 요청:", text);
+      } else {
+        console.log("⚠️ TemiInterface.speakText 없음 (웹 환경)");
+      }
+    } catch (err) {
+      console.error("❌ Temi 전송 오류:", err);
+    }
+  };
+
+  // ✅ 사용자 입력 전송
   const handleSend = async () => {
     if (!input.trim()) return;
+
     const userMsg = { sender: "user", text: input };
     setMessages((prev) => [...prev, userMsg]);
     const question = input;
@@ -24,8 +51,10 @@ export default function ChatBot({ title }) {
     setLoading(true);
 
     try {
-      const answer = "여기에 응답이 들어올 예정입니다."; // await sendQuestion(question, title);
+      // 여기에 실제 서버 연동 (예: sendQuestion(question, title))
+      const answer = "이건 Temi 로봇에서 말하게 될 응답입니다."; 
       setMessages((prev) => [...prev, { sender: "bot", text: answer }]);
+      sendToTemi(answer); // 로봇이 말하도록 요청
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -44,9 +73,41 @@ export default function ChatBot({ title }) {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ✅ 마이크 버튼 클릭 시 음성 인식 시작
+  const handleMicClick = () => {
+    try {
+      if (window.TemiInterface && window.TemiInterface.startListening) {
+        // 🔹 Temi SDK에서 STT 시작 (실제 서비스용)
+        window.TemiInterface.startListening();
+        console.log("🎙️ Temi STT 시작");
+      } else {
+        // 🔹 브라우저 테스트용 (Web Speech API)
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          alert("이 브라우저는 음성 인식을 지원하지 않습니다 😢 (Chrome 권장)");
+          return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = "ko-KR";
+        recognition.start();
+
+        recognition.onresult = (event) => {
+          const text = event.results[0][0].transcript;
+          setInput(text);
+          console.log("🎧 인식된 문장:", text);
+        };
+
+        recognition.onerror = (e) => console.error("음성 인식 오류:", e);
+      }
+    } catch (err) {
+      console.error("🎤 마이크 클릭 오류:", err);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white relative overflow-hidden">
-      {/* ✅ 홈 버튼: 왼쪽 상단 고정 */}
+      {/* ✅ 홈 버튼 */}
       <div
         onClick={() => navigate("/")}
         className="absolute top-[130px] left-[10px] flex flex-col items-center cursor-pointer"
@@ -58,7 +119,7 @@ export default function ChatBot({ title }) {
         </div>
       </div>
 
-      {/* ✅ 제목만 중앙 정렬 */}
+      {/* ✅ 제목 */}
       <h1 className="text-[50px] top-[130px] font-extrabold text-[#0D98BA] mt-[60px] mb-[30px] text-center">
         챗봇
       </h1>
@@ -103,23 +164,32 @@ export default function ChatBot({ title }) {
 
         {/* 🔹 입력창 */}
         <div className="flex flex-row items-center justify-between w-[700px] h-[60px] mx-auto rounded-full border-[4px] border-black px-[20px] bg-white shadow-md">
+          {/* 🎤 마이크 버튼 (왼쪽) */}
+          <button
+            onClick={handleMicClick}
+            className="flex items-center justify-center w-[40px] h-[40px] mr-3 cursor-pointer hover:scale-105 transition"
+          >
+            <img src={micImg} alt="mic" className="w-[28px] h-[28px]" />
+          </button>
 
+          {/* 입력창 */}
           <input
             type="text"
-            placeholder="무엇이든 물어보세요"
+            placeholder="    << 마이크를 클릭하여 무엇이든 물어보세요!"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             className="flex-grow outline-none border-none text-[20px] text-gray-800 h-[50px] bg-transparent placeholder-[#939393]"
           />
 
+          {/* 전송 버튼 */}
           <button
             onClick={handleSend}
             disabled={loading}
             className={`w-[40px] h-[40px] ml-4 rounded-full flex items-center justify-center 
             ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-105 transition"}`}
           >
-            <img src={sendImg} alt="mic" className="w-[35px] h-[35px]" />
+            <img src={sendImg} alt="send" className="w-[35px] h-[35px]" />
           </button>
         </div>
       </div>
