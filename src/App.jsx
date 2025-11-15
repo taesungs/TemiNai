@@ -9,6 +9,10 @@ import QuizCategory from "./pages/QuizCategory";
 import QuizResult from "./pages/QuizResult";
 import QuizPlay from "./pages/QuizPlay";
 import MemoryGame from "./pages/MemoryGame";
+import MemoryGameintro from "./pages/MemoryGameintro"
+import MemoryGamechoice from "./pages/MemoryGamechoice";
+import MemoryGameeasy from "./pages/MemoryGameeasy";
+import MemoryGamehard from "./pages/MemoryGamehard";
 import Recommendation from "./pages/Recommendation";
 import AlertSystem from "./pages/AlertSystem";
 import MainPage from "./photobooth/MainPage";
@@ -34,7 +38,14 @@ function App() {
           <Route path="/QuizCategory" element={<QuizCategory />} />
           <Route path="/quiz/play" element={<QuizPlay />} />
           <Route path="/quiz/Result" element={<QuizResult />} />
+
+
           <Route path="/memory" element={<MemoryGame />} />
+          <Route path="/MemoryGameintro" element={<MemoryGameintro />} />
+          <Route path="/MemoryGamechoice" element={<MemoryGamechoice />} />
+          <Route path="/MemoryGameeasy" element={<MemoryGameeasy />} />
+          <Route path="/MemoryGamehard" element={<MemoryGamehard />} /> 
+
           <Route path="/recommend" element={<Recommendation />} />
           <Route path="/alert" element={<AlertSystem />} />
         </Routes>

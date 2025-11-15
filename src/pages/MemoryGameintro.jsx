@@ -3,7 +3,7 @@ import robotImg from "../assets/robot_blue.png";
 import backImg from "../assets/back.png"; // ← 화살표 아이콘 (두 개 사용)
 import { useNavigate } from "react-router-dom";
 
-export default function MemoryGame() {
+export default function MemoryGameintro() {
   const navigate = useNavigate();
 
   return (
@@ -53,16 +53,16 @@ export default function MemoryGame() {
         <div className="flex flex-col justify-center items-center space-y-16 text-center">
           <div className="leading-tight space-y-10">
             <p className="text-[35px] font-extrabold text-[#FFFFFF]">
-              행사 재밌게 즐기고 계신가요?
+              같은 그림의 짝을 모두 찾아보세요!
             </p>
             <p className="text-[35px] font-extrabold text-[#FFFFFF]">
-              메모리 게임에 참가해서 기억력을 테스트해 보세요!
+              결과에 상관없이 소정의 간식을 드리고 있습니다!
             </p>
           </div>
 
           {/* 버튼 */}
           <button
-            onClick={() => navigate("/MemoryGameintro")}
+            onClick={() => navigate("/MemoryGamechoice")}
             className="bg-[#A66CFF] hover:bg-[#9257e5] text-[#FFFFFF] font-bold 
               px-[120px] py-[30px] rounded-full 
               shadow-none border-none outline-none focus:outline-none 
