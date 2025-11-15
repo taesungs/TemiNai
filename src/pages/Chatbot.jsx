@@ -4,6 +4,7 @@ import micImg from "../assets/microphone.png";
 import sendImg from "../assets/send.png";
 import backImg from "../assets/back.png";
 import { useNavigate } from "react-router-dom";
+import { sendQuestionToGemini } from "../api/geminiRequest"; // ✅ Gemini API 불러오기
 
 export default function ChatBot({ title }) {
   const navigate = useNavigate();
@@ -29,7 +30,6 @@ export default function ChatBot({ title }) {
   const sendToTemi = (text) => {
     try {
       if (window.TemiInterface && window.TemiInterface.speakText) {
-        // Temi SDK의 TTS 호출
         window.TemiInterface.speakText(text);
         console.log("🔵 Temi에게 말하기 요청:", text);
       } else {
@@ -40,7 +40,7 @@ export default function ChatBot({ title }) {
     }
   };
 
-  // ✅ 사용자 입력 전송
+  // ✅ 사용자 입력 전송 (Gemini API 연동)
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -51,11 +51,14 @@ export default function ChatBot({ title }) {
     setLoading(true);
 
     try {
-      // 여기에 실제 서버 연동 (예: sendQuestion(question, title))
-      const answer = "이건 Temi 로봇에서 말하게 될 응답입니다."; 
+      // ✅ Gemini API 호출
+      const answer = await sendQuestionToGemini(question);
+
+      // ✅ 응답 출력
       setMessages((prev) => [...prev, { sender: "bot", text: answer }]);
-      sendToTemi(answer); // 로봇이 말하도록 요청
+      sendToTemi(answer); // Temi에게 음성 출력
     } catch (err) {
+      console.error("❌ Gemini 호출 실패:", err);
       setMessages((prev) => [
         ...prev,
         { sender: "bot", text: "죄송합니다. 응답 중 오류가 발생했습니다." },
@@ -77,11 +80,10 @@ export default function ChatBot({ title }) {
   const handleMicClick = () => {
     try {
       if (window.TemiInterface && window.TemiInterface.startListening) {
-        // 🔹 Temi SDK에서 STT 시작 (실제 서비스용)
-        window.TemiInterface.startListening();
+        window.TemiInterface.startListening(); // Temi SDK용
         console.log("🎙️ Temi STT 시작");
       } else {
-        // 🔹 브라우저 테스트용 (Web Speech API)
+        // 🔹 브라우저 테스트용
         const SpeechRecognition =
           window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
