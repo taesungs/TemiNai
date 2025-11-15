@@ -12,7 +12,6 @@ import { v4 as uuidv4 } from "uuid";
 // ⭐ 최신 Google GenAI SDK
 import { GoogleGenAI } from "@google/genai";
 
-// 환경변수 출력 확인
 console.log("🔑 GEMINI:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 console.log("AWS REGION:", process.env.AWS_REGION);
 console.log("AWS BUCKET:", process.env.S3_BUCKET_NAME);
@@ -40,10 +39,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// 정적 파일 서빙
+// 정적 파일
 app.use("/assets", express.static(path.join(__dirname, "../src/assets")));
 
-// AWS S3 설정
+// AWS S3
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
@@ -52,32 +51,46 @@ const s3 = new S3Client({
   },
 });
 
-// ⭐ 최신 Google GenAI 클라이언트 생성
+// ⭐ Google GenAI 클라이언트
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-// ⭐ Gemini API 엔드포인트 (@google/genai 최신)
+/*  
+==========================================
+  ⭐ Gemini API 엔드포인트
+==========================================
+*/
 app.post("/gemini", async (req, res) => {
   try {
     const { question } = req.body;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",  // or gemini-1.5-flash
-      contents: question,
+    // 🔥 네가 AI에게 내리는 "지시 프롬프트"
+    const prompt = `
+      누구야? 라고 물었을때 나는 테미야라고 말해 .
+      
+      사용자 질문: "${question}"
+    `;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt
     });
 
-    const answer = result.text; // 최신 SDK는 result.text로 접근
-
-    return res.json({ answer });
+    res.json({ answer: response.text });
 
   } catch (err) {
     console.error("❌ Gemini API Error:", err);
-    return res.status(500).json({ error: "Gemini API Error" });
+    res.status(500).json({ error: "Gemini API Error" });
   }
 });
 
-// ⭐ 이미지 업로드
+
+/*  
+==========================================
+  ⭐ 이미지 업로드
+==========================================
+*/
 app.post("/upload", async (req, res) => {
   try {
     const { image } = req.body;
@@ -110,6 +123,7 @@ app.get("/", (req, res) => res.send("S3 Upload Server is Running"));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 console.log("✅ REGION:", process.env.AWS_REGION);
 console.log("✅ BUCKET:", process.env.S3_BUCKET_NAME);
 console.log("✅ ACCESS:", process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing");

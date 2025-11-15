@@ -1,4 +1,4 @@
-const API_URL = "https://ties-potter-promo-prague.trycloudflare.com";
+const API_URL = "https://statement-seen-varying-consistently.trycloudflare.com";
 
 export async function sendQuestionToGemini(question) {
   const response = await fetch(`${API_URL}/gemini`, {
