@@ -1,4 +1,4 @@
-const API_URL = "https://statement-seen-varying-consistently.trycloudflare.com";
+const API_URL = "https://teminai.onrender.com";
 
 export async function sendQuestionToGemini(question) {
   const response = await fetch(`${API_URL}/gemini`, {
