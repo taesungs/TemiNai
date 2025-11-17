@@ -9,7 +9,6 @@ import { fileURLToPath } from "url";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 
-// ⭐ 최신 Google GenAI SDK
 import { GoogleGenAI } from "@google/genai";
 
 console.log("🔑 GEMINI:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
@@ -33,11 +32,13 @@ app.use((req, res, next) => {
       font-src 'self' data: https://fonts.gstatic.com;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       script-src 'self' 'unsafe-inline' 'unsafe-eval';
-      connect-src 'self' http://localhost:8080 https://*.amazonaws.com https://*.cloudfront.net https://*.trycloudflare.com;
+      connect-src 'self'  http://localhost:8080 https://teminai.onrender.com https://*.amazonaws.com https://*.cloudfront.net https://*.trycloudflare.com;
     `.replace(/\s{2,}/g, " ")
   );
   next();
 });
+
+
 
 // 정적 파일
 app.use("/assets", express.static(path.join(__dirname, "../src/assets")));
@@ -67,7 +68,8 @@ app.post("/gemini", async (req, res) => {
 
     // 🔥 네가 AI에게 내리는 "지시 프롬프트"
     const prompt = `
-      누구야? 라고 물었을때 나는 테미야라고 말해 .
+      넌 부산 벡스코 co-show행사장 안내용 로봇이야.
+      사용자가 알기쉽게 간결하고 친절하게 대답해.
       
       사용자 질문: "${question}"
     `;
