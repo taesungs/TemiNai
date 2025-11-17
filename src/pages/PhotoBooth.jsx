@@ -117,7 +117,7 @@ const PhotoBooth = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white font-[Pretendard] space-y-6 relative">
       <h1 className="text-2xl font-bold text-sky-600 mt-6">
-        🎞 테미네컷 - {theme.toUpperCase()} 테마
+        테미네컷 - {theme.toUpperCase()} 테마
       </h1>
 
       {!isFinished && (
