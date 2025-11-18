@@ -11,13 +11,15 @@ import { v4 as uuidv4 } from "uuid";
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// ★ Temi WebView Origin 허용 목록
+//  Temi WebView Origin 허용 목록
 const ALLOWED_ORIGINS = [
   "https://appassets.androidplatform.net",
   "http://appassets.androidplatform.net",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ];
 
-// ★ CORS 직접 처리 (보안 강화)
+//  CORS 직접 처리 (보안 강화)
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
@@ -39,7 +41,7 @@ app.use((req, res, next) => {
 // JSON Body 처리
 app.use(bodyParser.json({ limit: "50mb" }));
 
-// ★ CSP 보안정책 — Temi WebView 허용 추가
+//  CSP 보안정책 — Temi WebView 허용 추가
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
