@@ -22,6 +22,7 @@ const PhotoBooth = () => {
   const [qrUrl, setQrUrl] = useState("");
   const [theme, setTheme] = useState("basic");
   const [isFinished, setIsFinished] = useState(false);
+
   const canvasRef = useRef(null);
   const cameraRef = useRef(null);
   const [searchParams] = useSearchParams();
@@ -36,6 +37,9 @@ const PhotoBooth = () => {
     mergeWithThemeFrame(capturedPhotos, theme);
   };
 
+  /** ===============================
+   *   사진 병합 함수 (최종본)
+   * =============================== */
   const mergeWithThemeFrame = async (photoArray, themeName) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -44,23 +48,30 @@ const PhotoBooth = () => {
     frame.src = frames[themeName] || frames.basic;
 
     frame.onload = async () => {
-      // 템플릿 원본 비율 (1630×1146)
-      const frameWidth = 816;
-      const frameHeight = (1146 / 1630) * frameWidth;
+      // 원본 템플릿 크기
+      const origW = 1630;
+      const origH = 1146;
+
+      // 출력 해상도 업그레이드 (1200px)
+      const frameWidth = 1200;
+      const frameHeight = (origH / origW) * frameWidth;
+
       canvas.width = frameWidth;
       canvas.height = frameHeight;
 
+      // 프레임 그리기
       ctx.drawImage(frame, 0, 0, frameWidth, frameHeight);
 
-      const ratioX = frameWidth / 1630;
-      const ratioY = frameHeight / 1146;
+      // 비율 변환
+      const ratioX = frameWidth / origW;
+      const ratioY = frameHeight / origH;
 
-      // 수정된 최종 좌표
+      // ★ 템플릿 내부 정확한 좌표
       const basePositions = [
-        { x: 875, y: 112, w: 278, h: 357 }, // 좌상
-        { x: 1220, y: 112, w: 278, h: 357 }, // 우상
-        { x: 875, y: 582, w: 278, h: 357 }, // 좌하
-        { x: 1220, y: 582, w: 278, h: 357 }, // 우하
+        { x: 860, y: 110, w: 310, h: 390 }, // 좌상
+        { x: 1210, y: 110, w: 310, h: 390 }, // 우상
+        { x: 860, y: 580, w: 310, h: 390 }, // 좌하
+        { x: 1210, y: 580, w: 310, h: 390 }, // 우하
       ];
 
       const positions = basePositions.map((p) => ({
@@ -70,7 +81,7 @@ const PhotoBooth = () => {
         h: p.h * ratioY,
       }));
 
-      // 각 사진 삽입
+      // ★ 사진 삽입 (cover 방식)
       for (let i = 0; i < Math.min(photoArray.length, 4); i++) {
         const img = new Image();
         img.src = photoArray[i];
@@ -79,10 +90,10 @@ const PhotoBooth = () => {
           img.onload = () => {
             const { x, y, w, h } = positions[i];
 
-            // 비율 유지 + 프레임에 딱 맞게 꽉 채움 (cover 방식)
             const ratio = Math.max(w / img.width, h / img.height);
             const newW = img.width * ratio;
             const newH = img.height * ratio;
+
             const offsetX = x + (w - newW) / 2;
             const offsetY = y + (h - newH) / 2;
 
@@ -98,6 +109,9 @@ const PhotoBooth = () => {
     };
   };
 
+  /** ===============================
+   *  업로드 영역
+   * =============================== */
   const uploadToS3 = async (mergedImage) => {
     try {
       const res = await axios.post(
@@ -110,6 +124,7 @@ const PhotoBooth = () => {
     }
   };
 
+  /** 촬영 시작 */
   const startShooting = () => {
     cameraRef.current.startAutoCapture();
   };
@@ -126,6 +141,7 @@ const PhotoBooth = () => {
             ref={cameraRef}
             onAllPhotosCaptured={handleAllPhotosCaptured}
           />
+
           <button
             onClick={startShooting}
             className="bg-pink-500 text-white px-6 py-3 rounded-xl text-lg shadow-md hover:bg-pink-600 transition"
@@ -137,18 +153,25 @@ const PhotoBooth = () => {
 
       <canvas ref={canvasRef} className="hidden" />
 
+      {/* ==========================
+          결과 화면 (QR → 오른쪽)
+         ========================== */}
       {isFinished && qrUrl && (
-        <div className="flex flex-col items-center gap-3 mt-4">
-          <p className="text-green-600 font-semibold">촬영 및 업로드 완료!</p>
+        <div className="flex flex-row items-start gap-6 mt-4">
+          {/* 결과 사진 */}
           <img
             src={canvasRef.current?.toDataURL()}
             alt="result"
-            className="w-[360px] rounded-lg border"
+            className="w-[420px] rounded-lg border"
           />
-          <QRCode value={qrUrl} size={200} />
-          <p className="text-gray-600 text-sm mt-2">
-            QR코드를 스캔하여 사진을 다운로드하세요.
-          </p>
+
+          {/* QR 영역 */}
+          <div className="flex flex-col items-center">
+            <QRCode value={qrUrl} size={200} />
+            <p className="text-gray-600 text-sm mt-3 text-center">
+              QR코드를 스캔하여 사진을 다운로드하세요.
+            </p>
+          </div>
         </div>
       )}
     </div>

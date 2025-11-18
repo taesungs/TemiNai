@@ -13,19 +13,19 @@ import { GoogleGenAI } from "@google/genai";
 console.log("🔑 GEMINI:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 console.log("AWS REGION:", process.env.AWS_REGION);
 console.log("AWS BUCKET:", process.env.S3_BUCKET_NAME);
-console.log("AWS ACCESS:", process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing");
+console.log(
+  "AWS ACCESS:",
+  process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing"
+);
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/*  
-==========================================
-  ⭐ Temi WebView Origin 허용 (보안)
-==========================================
-*/
 const ALLOWED_ORIGINS = [
   "https://appassets.androidplatform.net",
   "http://appassets.androidplatform.net",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ];
 
 app.use((req, res, next) => {
@@ -44,11 +44,9 @@ app.use((req, res, next) => {
   next();
 });
 
-/*  
-==========================================
-  ⭐ CSP 보안정책 — Temi WebView + AWS 허용
-==========================================
-*/
+// JSON Body 처리
+app.use(bodyParser.json({ limit: "50mb" }));
+
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -176,6 +174,9 @@ app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 console.log("================================");
 console.log("AWS REGION:", process.env.AWS_REGION);
 console.log("AWS BUCKET:", process.env.S3_BUCKET_NAME);
-console.log("AWS ACCESS:", process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing");
+console.log(
+  "AWS ACCESS:",
+  process.env.AWS_ACCESS_KEY_ID ? "Loaded" : "Missing"
+);
 console.log("GEMINI API:", process.env.GEMINI_API_KEY ? "Loaded" : "Missing");
 console.log("================================");
