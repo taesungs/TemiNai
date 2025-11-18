@@ -18,30 +18,30 @@ export default function PromoVideo() {
       </h1>
 
       <div
-        onClick={goHome}
-        className="flex flex-col items-center cursor-pointer select-none"
-        style={{
-          position: "absolute",
-          top: 110, 
-          left: 300,  
-        }}
-      >
-        <span className="text-[30px] text-sm font-semibold text-black mb-1">홈</span>
-        <div className="flex items-center" style={{ gap: "7px" }}>
-          <img
-            src={backImg}
-            alt="뒤로가기"
-            style={{ width: 30, height: 25, display: "block" }}
-            draggable="false"
-          />
-          <img
-            src={backImg}
-            alt="뒤로가기"
-            style={{ width: 30, height: 25, display: "block", marginLeft: -4 }}
-            draggable="false"
-          />
-        </div>
+      onClick={goHome}
+      className="flex flex-col items-center cursor-pointer select-none"
+      style={{
+        position: "absolute",
+        top: "15%",     // 🔹 퍼센트로 변경
+        left: "15%",     // 🔹 퍼센트로 변경
+      }}
+    >
+      <span className="text-[30px] font-semibold text-black mb-1">홈</span>
+      <div className="flex items-center" style={{ gap: "7px" }}>
+        <img
+          src={backImg}
+          alt="뒤로가기"
+          style={{ width: 30, height: 25, display: "block" }}
+          draggable="false"
+        />
+        <img
+          src={backImg}
+          alt="뒤로가기"
+          style={{ width: 30, height: 25, display: "block", marginLeft: -4 }}
+          draggable="false"
+        />
       </div>
+    </div>
 
       {/* 본문 콘텐츠 */}
       <div className="flex flex-col items-center justify-center flex-1 w-full px-4 mt -[-100px]">
