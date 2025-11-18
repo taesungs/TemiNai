@@ -68,10 +68,10 @@ const PhotoBooth = () => {
 
       // ★ 템플릿 내부 정확한 좌표
       const basePositions = [
-        { x: 860, y: 110, w: 310, h: 390 }, // 좌상
-        { x: 1210, y: 110, w: 310, h: 390 }, // 우상
-        { x: 860, y: 580, w: 310, h: 390 }, // 좌하
-        { x: 1210, y: 580, w: 310, h: 390 }, // 우하
+        { x: 832, y: 97, w: 320, h: 400 }, // 좌상
+        { x: 1214, y: 97, w: 320, h: 400 }, // 우상
+        { x: 832, y: 655, w: 320, h: 400 }, // 좌하
+        { x: 1214, y: 650, w: 320, h: 400 }, // 우하
       ];
 
       const positions = basePositions.map((p) => ({
@@ -142,12 +142,23 @@ const PhotoBooth = () => {
             onAllPhotosCaptured={handleAllPhotosCaptured}
           />
 
-          <button
-            onClick={startShooting}
-            className="bg-pink-500 text-white px-6 py-3 rounded-xl text-lg shadow-md hover:bg-pink-600 transition"
-          >
-            📷 촬영 시작
-          </button>
+          <div className="mt-10">
+            <button
+              onClick={startShooting}
+              className="
+      bg-pink-500 text-white
+      w-[230px] h-[80px]
+      rounded-full
+      text-4xl font-extrabold
+      flex items-center justify-center
+      hover:bg-pink-600 active:scale-95
+      transition-transform duration-150
+      tracking-wide
+    "
+            >
+              📷 촬영 시작
+            </button>
+          </div>
         </>
       )}
 
