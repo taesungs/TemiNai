@@ -2,13 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import mapImg from "../assets/mapguide.png";
 import backImg from "../assets/back.png";
+import { booths } from "../data/Booths";
 
 export default function GuideMap() {
   const navigate = useNavigate();
 
   const [showCenterMessage, setShowCenterMessage] = useState(true);
   const [selectedBooth, setSelectedBooth] = useState(null);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [showIntro, setShowIntro] = useState(false); // 1단계 부스 설명 팝업
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // 2단계 이동 팝업
   const [startMessage, setStartMessage] = useState("");
   const [EndMessage, setEndMessage] = useState("");
 
@@ -19,12 +21,50 @@ export default function GuideMap() {
     return () => clearTimeout(timer);
   }, [showCenterMessage]);
 
-  // "안내를 시작합니다" 메세지도 3초 후 자동으로 사라지게
+    // 중앙 안내문이 켜졌을 때 음성 안내
   useEffect(() => {
-    if (!startMessage) return;
-    const timer = setTimeout(() => setStartMessage(""), 3000);
+    if (showCenterMessage) {
+      speak("이동할 부스를 선택해주세요.");
+    }
+  }, [showCenterMessage]);
+
+  const handleBoothClick = (booth) => {
+    setSelectedBooth(booth);
+    if (booth.description) {
+      setShowIntro(true); // 음성 없음
+    } else {
+      setIsConfirmOpen(true);
+    }
+  };
+
+  // 1단계 부스 소개 3초 후 + 2단계 이동 확인 팝업 3초 후 자동으로 사라지게
+  useEffect(() => {
+    if (!showIntro || !selectedBooth?.description) return;
+
+    const timer = setTimeout(() => {
+      setShowIntro(false); // 1단계 닫기
+      setIsConfirmOpen(true); // 2단께 이동 팝업 열기
+
+    }, 3000);
     return () => clearTimeout(timer);
-  }, [startMessage]);
+  }, [showIntro, selectedBooth]);
+
+  // 2단계 이동 확인 팝업이 열릴 때만 음성 안내
+  useEffect(() => {
+    if (isConfirmOpen && selectedBooth) {
+      speak(`${selectedBooth.name} 부스로 이동하겠습니까?`);
+    }
+  }, [isConfirmOpen, selectedBooth]);
+
+  const handleConfirmYes = () => {
+    if (!selectedBooth) return;
+    setIsConfirmOpen(false);
+
+    const msg = `${selectedBooth.name} 부스로 안내를 시작합니다.`;
+    setStartMessage(msg);
+    speak(msg);  // 안내 시작 음성
+    startNavigation(selectedBooth.id);
+  };
 
   // "안내를 종료합니다" 메세지 3초 후 자동으로 사라지게
   useEffect(() => {
@@ -40,23 +80,6 @@ export default function GuideMap() {
   const startNavigation = (boothId) => {
     console.log("Start navigation to:", boothId);
     // 여기에서 temi 로봇 길안내 API 호출
-  };
-
-
-  const handleBoothClick = (booth) => {
-    setSelectedBooth(booth);
-    setIsConfirmOpen(true);
-    speak(`${booth.name} 부스로 이동하겠습니까?`);
-  };
-
-  const handleConfirmYes = () => {
-    if (!selectedBooth) return;
-    setIsConfirmOpen(false);
-
-    const msg = `${selectedBooth.name} 부스로 안내를 시작합니다.`;
-    setStartMessage(msg);
-    speak(msg);  // 안내 시작 음성
-    startNavigation(selectedBooth.id);
   };
 
   const handleConfirmNo = () => {
@@ -96,128 +119,6 @@ export default function GuideMap() {
 
   console.log("🖥️ Web TTS 실행:", text);
 }
-
-  // 중앙 안내문이 켜졌을 때 음성 안내
-  useEffect(() => {
-    if (showCenterMessage) {
-      speak("이동할 부스를 선택해주세요.");
-    }
-  }, [showCenterMessage]);
-
-
-  // 지도 위 투명 박스들
-  const booths = [
-    {
-      id: "rest area",
-      name: "휴게 공간",
-      style: { top: "4%", left: "7.5%", width: "19%", height: "3%" },
-    },
-    {
-      id: "rest area",
-      name: "휴게 공간",
-      style: { top: "3%", left: "55.5%", width: "30%", height: "4%" },
-    },
-    {
-      id: "public Relations Center",
-      name: "부산시 홍보관",
-      style: { top: "25%", left: "38%", width: "8%", height: "5%" },
-    },
-    {
-      id: "immersive media",
-      name: "실감 미디어",
-      style: { top: "10%", left: "7.5%", width: "19%", height: "14%" },
-    },
-    {
-      id: "data security",
-      name: "데이터 보안",
-      style: { top: "9%", left: "55.5%", width: "18%", height: "15%" },
-    },
-    {
-      id: "future car",
-      name: "미래 자동차",
-      style: { top: "9%", left: "73%", width: "18%", height: "15%" },
-    },
-    {
-      id: "secondary battery",
-      name: "이차전지",
-      style: { top: "29%", left: "7.5%", width: "14%", height: "21%" },
-    },
-    {
-      id: "bio health",
-      name: "바이오 헬스",
-      style: { top: "29%", left: "22%", width: "13%", height: "21%" },
-    },
-    {
-      id: "intelligent robot",
-      name: "지능형 로봇",
-      style: { top: "29%", left: "46%", width: "14%", height: "21%" },
-    },
-    {
-      id: "new energy business",
-      name: "에너지 신사업",
-      style: { top: "29%", left: "60%", width: "14%", height: "21%" },
-    },
-    {
-      id: "eco-up",
-      name: "에코업",
-      style: { top: "29%", left: "78%", width: "14%", height: "21%" },
-    },
-    {
-      id: "big-data",
-      name: "빅데이터",
-      style: { top: "50%", left: "7.5%", width: "14%", height: "21%" },
-    },
-    {
-      id: "next generation display",
-      name: "차세대 디스플레이",
-      style: { top: "50%", left: "22%", width: "13%", height: "21%" },
-    },
-    {
-      id: "ai",
-      name: "인공지능",
-      style: { top: "50%", left: "46%", width: "14%", height: "21%" },
-    },
-    {
-      id: "next generation communications",
-      name: "차세대 통신",
-      style: { top: "50%", left: "60%", width: "14%", height: "21%" },
-    },
-    {
-      id: "advanced materials",
-      name: "첨단소재",
-      style: { top: "50%", left: "78%", width: "14%", height: "21%" },
-    },
-    {
-      id: "coss sphere",
-      name: "coss 스피어",
-      style: { top: "65%", left: "32%", width: "15%", height: "17%" },
-    },
-    {
-      id: "next generation semiconductor",
-      name: "차세대 반도체",
-      style: { top: "76%", left: "7.5%", width: "14%", height: "21%" },
-    },
-    {
-      id: "green bio",
-      name: "그린 바이오",
-      style: { top: "76%", left: "22%", width: "13%", height: "21%" },
-    },
-    {
-      id: "internet of things",
-      name: "사물 인터넷",
-      style: { top: "76%", left: "46%", width: "14%", height: "21%" },
-    },
-    {
-      id: "semiconductor department manager",
-      name: "반도체 소부장",
-      style: { top: "76%", left: "60%", width: "14%", height: "21%" },
-    },
-    {
-      id: "aviation drone",
-      name: "항공드론",
-      style: { top: "76%", left: "78%", width: "14%", height: "21%" },
-    },
-  ];
 
   return (
     <div className="w-screen h-screen flex flex-col bg-white">
@@ -316,6 +217,68 @@ export default function GuideMap() {
           ))}
         </div>
       </div>
+
+      {/* 1단계: 부스 소개 팝업 (모든 부스 공통) */}
+      {showIntro && selectedBooth?.description && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.25)",
+            zIndex: 45,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "#ffffff",
+              borderRadius: 24,
+              padding: "20px 24px",
+              minWidth: 260,
+              maxWidth: "80vw",
+              boxShadow: "0 12px 30px rgba(0,0,0,0.25)",
+            }}
+          >
+            {/*첫 줄: "00부스에서는" */}
+            <p
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                lineHeight: 1.5,
+                marginBottom: 12,
+              }}
+            >
+              {`${selectedBooth.name} 부스에서는`}
+            </p>
+
+            {/* 두 번째 줄: 부스 설명 */}
+            <p
+              style={{
+                fontSize: 17,
+                fontWeight: 500,
+                lineHeight: 1.45,
+                color: "#444",
+                marginBottom: 12,
+              }}
+            >
+        {selectedBooth.description}
+      </p>
+
+            <p
+              style={{
+                fontSize: 13,
+                color: "#999",
+              }}
+            >
+              3초 뒤 이동 선택 화면으로 넘어갑니다…
+            </p>
+          </div>
+        </div>
+      )}
+
 
       {/*  이동 확인 모달  */}
       {isConfirmOpen && selectedBooth && (
