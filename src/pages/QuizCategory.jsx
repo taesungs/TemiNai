@@ -19,7 +19,7 @@ export default function QuizCategory() {
         {/* 행사 */}
         <div
           onClick={() => navigate("/quiz/play", { state: { category: "coshow" } })}
-          className="cursor-pointer w-[350px] h-[560px] bg-white border-6 border-[#0D98BA] 
+          className="cursor-pointer w-[340px] h-[530px] bg-white border-6 border-[#0D98BA] 
           rounded-[40px] flex flex-col items-center justify-start shadow-lg"
         >
           <h2 className="text-[36px] font-extrabold text-black mt-10 mb-4">행사</h2>
@@ -29,14 +29,14 @@ export default function QuizCategory() {
           <img
             src={coShowImg}
             alt="CO-SHOW"
-            className="w-[260px] h-[340px] object-cover rounded-[20px]"
+            className="w-[250px] h-[320px] object-cover rounded-[20px]"
           />
         </div>
 
         {/* 부산 */}
         <div
           onClick={() => navigate("/quiz/play", { state: { category: "busan" } })}
-          className="cursor-pointer w-[350px] h-[560px] bg-white border-6 border-[#0D98BA] 
+          className="cursor-pointer w-[340px] h-[530px] bg-white border-6 border-[#0D98BA] 
           rounded-[40px] flex flex-col items-center justify-start shadow-lg"
         >
           <h2 className="text-[36px] font-extrabold text-black mt-10 mb-4">부산</h2>
@@ -53,7 +53,7 @@ export default function QuizCategory() {
         {/* 일반 상식 */}
         <div
           onClick={() => navigate("/quiz/play", { state: { category: "common" } })}
-          className="cursor-pointer w-[350px] h-[560px] bg-white border-6 border-[#0D98BA] 
+          className="cursor-pointer w-[340px] h-[530px] bg-white border-6 border-[#0D98BA] 
           rounded-[40px] flex flex-col items-center justify-start shadow-lg"
         >
           <h2 className="text-[36px] font-extrabold text-black mt-10 mb-4">일반 상식</h2>
