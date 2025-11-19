@@ -10,6 +10,7 @@ export default function GuideMap() {
   const [selectedBooth, setSelectedBooth] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [startMessage, setStartMessage] = useState("");
+  const [EndMessage, setEndMessage] = useState("");
 
   // 3초 뒤 중앙 안내문 자동으로 사라지게
   useEffect(() => {
@@ -24,6 +25,13 @@ export default function GuideMap() {
     const timer = setTimeout(() => setStartMessage(""), 3000);
     return () => clearTimeout(timer);
   }, [startMessage]);
+
+  // "안내를 종료합니다" 메세지 3초 후 자동으로 사라지게
+  useEffect(() => {
+    if (!EndMessage) return;
+    const timer = setTimeout(() => setEndMessage(""), 3000);
+    return () => clearTimeout(timer);
+  }, [EndMessage]);
 
   const goHome = () => {
     navigate("/"); // 홈으로 이동
@@ -56,18 +64,38 @@ export default function GuideMap() {
     setSelectedBooth(null);
   };
 
+  const handleArrived = () => {
+    const msg = "목적지에 도착하였습니다. 안내를 종료합니다."
+    setEndMessage(msg);
+    speak(msg);
+  };
+
   // 글자를 소리로 읽어주는 함수
   function speak(text) {
-    if (!window.speechSynthesis) return; // 브라우저가 지원 안 하면 그냥 패스
+  try {
+    // 🔵 Temi Android 환경 (브릿지 호출)
+    if (window.TemiInterface && window.TemiInterface.speak) {
+      window.TemiInterface.speak(text);
+      console.log("🔵 Temi에게 speak 요청:", text);
+      return; // Temi 환경이면 여기서 종료
+    }
+  } catch (err) {
+    console.error("❌ Temi 브릿지 오류:", err);
+  }
 
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "ko-KR";   // 한국어
-    utter.rate = 1.1;       // 말하는 속도
-    utter.pitch = 1.2;      // 톤 높이
+  // ⚪ 웹 환경 Text-to-Speech fallback
+  if (!window.speechSynthesis) return;
 
-    window.speechSynthesis.cancel(); // 전에 말하던 거 있으면 끊고
-    window.speechSynthesis.speak(utter);
-  };
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "ko-KR";
+  utter.rate = 1.1;
+  utter.pitch = 1.2;
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+
+  console.log("🖥️ Web TTS 실행:", text);
+}
 
   // 중앙 안내문이 켜졌을 때 음성 안내
   useEffect(() => {
@@ -140,8 +168,8 @@ export default function GuideMap() {
       style: { top: "50%", left: "7.5%", width: "14%", height: "21%" },
     },
     {
-      id: "next generation displayer",
-      name: "차세대 디스플레이어",
+      id: "next generation display",
+      name: "차세대 디스플레이",
       style: { top: "50%", left: "22%", width: "13%", height: "21%" },
     },
     {
@@ -401,6 +429,35 @@ export default function GuideMap() {
               {startMessage}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* 목적지 도착 안내문 */}
+      {EndMessage && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "#ffffff",
+            borderRadius: 24,
+            padding: "20px 32px",
+            minWidth: 260,
+            maxWidth: "80%",
+            textAlign: "center",
+            boxShadow: "0 12px 30px rgba(0,0,0,0.18)",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 20,
+              fontWeight: 600,
+              color: "#111111",
+            }}
+          >
+            {EndMessage}
+          </p>
         </div>
       )}
     </div>
