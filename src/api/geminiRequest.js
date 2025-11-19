@@ -1,6 +1,7 @@
 import { fetchRetry } from "../utils/fetchRetry";
+const API_URL = "http://34.204.185.88:8080";
 
-const API_URL = "https://teminai.onrender.com";
+//const API_URL = "https://teminai.onrender.com";
 //const API_URL = "http://localhost:8080";
 
 
