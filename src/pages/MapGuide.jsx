@@ -34,15 +34,20 @@ export default function GuideMap() {
     // 여기에서 temi 로봇 길안내 API 호출
   };
 
+
   const handleBoothClick = (booth) => {
     setSelectedBooth(booth);
     setIsConfirmOpen(true);
+    speak(`${booth.name} 부스로 이동하겠습니까?`);
   };
 
   const handleConfirmYes = () => {
     if (!selectedBooth) return;
     setIsConfirmOpen(false);
-    setStartMessage(`${selectedBooth.name} 부스로 안내를 시작합니다.`);
+
+    const msg = `${selectedBooth.name} 부스로 안내를 시작합니다.`;
+    setStartMessage(msg);
+    speak(msg);  // 안내 시작 음성
     startNavigation(selectedBooth.id);
   };
 
@@ -51,8 +56,44 @@ export default function GuideMap() {
     setSelectedBooth(null);
   };
 
+  // 글자를 소리로 읽어주는 함수
+  function speak(text) {
+    if (!window.speechSynthesis) return; // 브라우저가 지원 안 하면 그냥 패스
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR";   // 한국어
+    utter.rate = 1.1;       // 말하는 속도
+    utter.pitch = 1.2;      // 톤 높이
+
+    window.speechSynthesis.cancel(); // 전에 말하던 거 있으면 끊고
+    window.speechSynthesis.speak(utter);
+  };
+
+  // 중앙 안내문이 켜졌을 때 음성 안내
+  useEffect(() => {
+    if (showCenterMessage) {
+      speak("이동할 부스를 선택해주세요.");
+    }
+  }, [showCenterMessage]);
+
+
   // 지도 위 투명 박스들
   const booths = [
+    {
+      id: "rest area",
+      name: "휴게 공간",
+      style: { top: "4%", left: "7.5%", width: "19%", height: "3%" },
+    },
+    {
+      id: "rest area",
+      name: "휴게 공간",
+      style: { top: "3%", left: "55.5%", width: "30%", height: "4%" },
+    },
+    {
+      id: "public Relations Center",
+      name: "부산시 홍보관",
+      style: { top: "25%", left: "38%", width: "8%", height: "5%" },
+    },
     {
       id: "immersive media",
       name: "실감 미디어",
@@ -117,6 +158,11 @@ export default function GuideMap() {
       id: "advanced materials",
       name: "첨단소재",
       style: { top: "50%", left: "78%", width: "14%", height: "21%" },
+    },
+    {
+      id: "coss sphere",
+      name: "coss 스피어",
+      style: { top: "65%", left: "32%", width: "15%", height: "17%" },
     },
     {
       id: "next generation semiconductor",
