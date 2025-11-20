@@ -9,7 +9,7 @@ import { sendQuestionToGemini } from "../api/geminiRequest"; // ⭐ Gemini API �
 export default function ChatBot({ title }) {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([
-    { sender: "bot", text: "안녕하세요! 무엇을 도와드릴까요?" },
+    { sender: "bot", text: "안녕하세요! 무엇이 궁금하신가요?" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
