@@ -49,7 +49,6 @@ export default function PromoVideo() {
           src={promoVideo}
           controls
           autoPlay
-          muted
           loop
           className="w-[min(70vw,900px)] rounded-2xl shadow-lg"
         />
