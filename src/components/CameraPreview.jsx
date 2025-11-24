@@ -11,7 +11,6 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
   const canvasRef = useRef(null);
 
   const [countdown, setCountdown] = useState(null);
-  const [flash, setFlash] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [hasStream, setHasStream] = useState(false);
 
@@ -44,23 +43,15 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         }
       }
 
-      setHasStream(true);
-      console.log("Camera started successfully");
-      return true;
-    } catch (err) {
-      const name = err && err.name ? err.name : "";
-      const message = err && err.message ? err.message : err;
-      console.error("Camera access error:", name, message);
+        // 실제 촬영
+        const photo = await capturePhoto();
+        captures.push(photo);
 
-      // 사용자에게 명확한 에러 메시지 표시
-      if (name === "NotAllowedError") {
-        alert("카메라 권한이 거부되었습니다. 브라우저 설정에서 카메라 권한을 허용해주세요.");
-      } else if (name === "NotFoundError") {
-        alert("카메라를 찾을 수 없습니다.");
-      } else if (name === "NotReadableError") {
-        alert("카메라가 다른 앱에서 사용 중입니다.");
-      } else {
-        alert("카메라 접근 실패: " + message);
+        // 카운트 초기화
+        setCountdown(null);
+
+        // 다음 촬영까지 1초 쉬기 (플래시 후 안정 시간)
+        if (i < 3) await new Promise((res) => setTimeout(res, 1000));
       }
 
       return false;
@@ -108,7 +99,20 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         sy = (video.videoHeight - sHeight) / 2;
       }
 
-      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(
+        video,
+        sx,
+        sy,
+        sWidth,
+        sHeight,
+        -targetW,
+        0,
+        targetW,
+        targetH
+      );
+      ctx.restore();
       const photoData = canvas.toDataURL("image/png");
       resolve(photoData);
     });
@@ -191,7 +195,12 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         playsInline
         muted
         className="rounded-xl border shadow-md"
-        style={{ width: "320px", height: "410px", objectFit: "cover", transform: "scaleY(180deg)" }}
+        style={{
+          width: "320px",
+          height: "410px",
+          objectFit: "cover",
+          transform: "scaleX(-1)",
+        }}
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
@@ -209,11 +218,6 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         >
           {countdown}
         </div>
-      )}
-
-      {/* 플래시 효과 */}
-      {flash && (
-        <div className="absolute inset-0 bg-white opacity-90 animate-pulse" style={{width: "100%", height: "100%"}} />
       )}
     </div>
   );

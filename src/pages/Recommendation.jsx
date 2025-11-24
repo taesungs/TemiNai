@@ -425,7 +425,7 @@ const Recommendation = () => {
       ) : (
         <div
           style={{
-            width: "120%",
+            width: "80%",
             border: "3px solid #2EA3B7",
             borderRadius: "20px",
             padding: "35px 40px",
