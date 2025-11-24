@@ -29,16 +29,31 @@ export default function GuideMap() {
     const [showArrivedPopup, setShowArrivedPopup] = useState(false); // 목적지 도착
     const [showContinuePopup, setShowContinuePopup] = useState(false); // 테미 사용 여부
     const [showReturningPopup, setShowReturningPopup] = useState(false); // 복귀 창
-    const [showQrPopup, setShowQrPopup] = useState(false); // 웨이팅 나우 QR 팝업
+    const [showQrPopup, setShowQrPopup] = useState(false); // QR 팝업
 
-    //부스 QR
+    // 부스 QR
     const [currentQr, setCurrentQr] = useState(null);
 
     // 1분 자동 복귀 타이머
     const inactivityTimerRef = useRef(null);
 
+    // selectedBooth를 ref로 관리 (클로저 문제 해결)
+    const selectedBoothRef = useRef(null);
+
     // 체험 프로그램 목록 - 카테고리별 그룹화
     const [expandedCategories, setExpandedCategories] = useState({});
+
+    // QR 코드 매핑
+    const qrByTitle = {
+        "일반인 로봇 교육 프로그램 1(경주로봇 만들기)": qrRace,
+        "로봇아 멍멍해봐 4족보행로봇 훈련": qrDog,
+        "일반인 로봇 교육 프로그램4(유선 스파이더로봇 만들기)": qrSpider,
+        "자이로 외발주행로봇 만들기": qrGyro,
+        "청소로봇 만들기": qrClean,
+        "일반인 로봇 교육프로그램5(휴머노이드 이론교육 및 미션수행)": qrHumanoid,
+        "AI 드로잉 로봇 및 오목 로봇 체험": qrAi,
+        "ROBO SHOW(4족보행 로봇 및 테미 체험)": qrRoboShow,
+    };
 
     // 카테고리별로 이벤트 그룹화
     const groupedEvents = useMemo(() => {
@@ -61,17 +76,6 @@ export default function GuideMap() {
         }));
     };
 
-    const qrByTitle = {
-    "일반인 로봇 교육 프로그램 1(경주로봇 만들기)": qrRace,
-    "로봇아 멍멍해봐 4족보행로봇 훈련": qrDog,
-    "일반인 로봇 교육 프로그램4(유선 스파이더로봇 만들기)": qrSpider,
-    "자이로 외발주행로봇 만들기": qrGyro,
-    "청소로봇 만들기": qrClean,
-    "일반인 로봇 교육프로그램5(휴머노이드 이론교육 및 미션수행)": qrHumanoid,
-    "AI 드로잉 로봇 및 오목 로봇 체험": qrAi,
-    "ROBO SHOW(4족보행 로봇 및 테미 체험)": qrRoboShow,
-    };
-
     // 3초 뒤 중앙 안내문 자동으로 사라지게
     useEffect(() => {
         if (!showCenterMessage) return;
@@ -89,13 +93,14 @@ export default function GuideMap() {
     // 지능형 로봇 부스인지 확인
     const isIntelligentRobotBooth = (booth) => {
       console.log("###### isIntelligentRobotBooth: "+ booth)
-        return (      
+        return (
             booth?.id === "intelligent robot" || booth?.name === "지능형 로봇"
         );
     };
 
     const handleBoothClick = (booth) => {
         setSelectedBooth(booth);
+        selectedBoothRef.current = booth; // ref에도 저장
         if (booth.description) {
             setShowIntro(true); // 음성 없음
         } else {
@@ -166,35 +171,25 @@ export default function GuideMap() {
         }
     };
 
-    // 목적지 도착 팝업 + 지능형 로봇이면 QR, 아니면 계속 이용 여부
+    // 목적지 도착 팝업 + 계속 이용 여부
     const handleArrived = () => {
         const msg = "목적지에 도착하였습니다.";
         setShowArrivedPopup(true);
         speak(msg);
 
-        // 2초 후 분기 처리
+        // 4초 후 계속 이용 여부 팝업
         setTimeout(() => {
             setShowArrivedPopup(false);
-            // 지능형 로봇 부스인 경우 QR 팝업
-            console.log("selectedBooth: " + selectedBooth);
-            if (isIntelligentRobotBooth(selectedBooth)) {
-                setShowQrPopup(true);
-                speak(
-                    "웨이팅 나우 QR 코드를 확인하세요. 스캔하면 대기 없이 체험할 수 있습니다."
-                );
-            } else {
-                setShowContinuePopup(true);
-                speak("테미를 계속 이용하시겠습니까?");
-            }
+            setShowContinuePopup(true);
+            speak("테미를 계속 이용하시겠습니까?");
         }, 4000);
 
     };
 
-    // QR 팝업 닫기 → 계속 이용 여부 팝업으로
+    // QR 팝업 닫기
     const handleQrClose = () => {
         setShowQrPopup(false);
-        setShowContinuePopup(true);
-        speak("테미를 계속 이용하시겠습니까?");
+        setCurrentQr(null);
     };
 
     // 예(계속 이용) 클릭 → 페이지 유지 + 1분 무조작 자동 복귀
@@ -257,15 +252,9 @@ export default function GuideMap() {
     useEffect(() => {
         console.log("🔧 Setting up navigation listener...");
 
-        // 🔹 Temi 없는 웹 환경이면 바로 종료
-        if (!window.TemiInterface) {
-            console.log("ℹ️ TemiInterface 없음(웹 환경) → 리스너 등록 생략");
-            return;
-        }
-
         // 리스너 저장소 초기화
         if (!window.TemiInterface._listeners) {
-         window.TemiInterface._listeners = {};
+            window.TemiInterface._listeners = {};
         }
 
         // 리스너 함수 정의
@@ -289,15 +278,12 @@ export default function GuideMap() {
 
         return () => {
             console.log("🧹 Removing navigation listener...");
-            if (window.TemiInterface && window.TemiInterface.removeListener) {
+            if (window.TemiInterface.removeListener) {
                 window.TemiInterface.removeListener("onGoToLocationStatusChanged");
             }
-            if (window.TemiInterface && window.TemiInterface._listeners) {
-                delete window.TemiInterface._listeners["onGoToLocationStatusChanged"];
-            }
+            delete window.TemiInterface._listeners["onGoToLocationStatusChanged"];
         };
     }, []);
-
 
     // 글자를 소리로 읽어주는 함수
     function speak(text) {
@@ -342,7 +328,7 @@ export default function GuideMap() {
                 style={{
                     position: "fixed",
                     top: "5%",
-                    left: "5%",
+                    left: "15%",
                     zIndex: 30,
                 }}
             >
@@ -517,7 +503,7 @@ export default function GuideMap() {
                                                     {events.map((ev, idx) => {
                                                         const qrImg = qrByTitle[ev.title];
 
-                                                        return(
+                                                        return (
                                                         <div
                                                             key={
                                                                 ev.title +
@@ -573,18 +559,19 @@ export default function GuideMap() {
                                                                         )
                                                                         .trim()}
                                                                 </div>
-                                                                {ev.category.includes("지능형로봇") && qrByTitle[ev.title] && (
+                                                                {ev.category.includes("지능형로봇") && qrImg && (
                                                                     <span
-                                                                        onClick={() => {
-                                                                        setCurrentQr(qrImg);   // 선택한 QR 저장
-                                                                        setShowQrPopup(true);  // 팝업 열기
-                                                                    }}
-                                                                    className="mt-1 inline-flex items-center gap-1 text-[11px] 
-                                                                    font-semibold text-[#02A4D3] underline cursor-pointer"
-                                                                >
-                                                                    📱 NOW WAITING
-                                                                </span>
-                                                            )}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setCurrentQr(qrImg);
+                                                                            setShowQrPopup(true);
+                                                                        }}
+                                                                        className="mt-1 inline-flex items-center gap-1 text-[11px]
+                                                                        font-semibold text-[#02A4D3] underline cursor-pointer"
+                                                                    >
+                                                                        📱 NOW WAITING
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         );
@@ -946,7 +933,7 @@ export default function GuideMap() {
                 </div>
             )}
 
-            {/* 웨이팅 나우 QR 코드 팝업 (지능형 로봇 전용) */}
+            {/* 웨이팅 나우 QR 코드 팝업 */}
             {showQrPopup && (
                 <div
                     style={{
@@ -1020,53 +1007,41 @@ export default function GuideMap() {
                                 boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
                             }}
                         >
-                            {/* 실제 QR 코드 이미지 표시 */}
-                            <div
-                                style={{
-                                    backgroundColor: "#FFFFFF",
-                                    borderRadius: 24,
-                                    padding: "32px",
-                                    marginBottom: 24,
-                                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {currentQr ? (
-                                    <img
-                                        src={currentQr}
-                                        alt="QR 코드"
-                                        style={{
-                                            width: 280,
-                                            height: 280,
-                                            objectFit: "contain",
-                                            display: "block",
-                                            margin: "0 auto",
-                                            borderRadius: 12,
-                                        }}
-                                        draggable="false"
-                                    />
-                                ) : (
-                                    <div
-                                        style={{
-                                            width: 280,
-                                            height: 280,
-                                            margin: "0 auto",
-                                            backgroundColor: "#F0F0F0",
-                                            borderRadius: 16,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: 64,
-                                        }}
-                                    >
-                                        ❗
-                                        <br />
-                                        <span style={{ fontSize: 16, color: "#666" }}>
-                                            QR 없음
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
+                            {currentQr ? (
+                                <img
+                                    src={currentQr}
+                                    alt="QR 코드"
+                                    style={{
+                                        width: 280,
+                                        height: 280,
+                                        objectFit: "contain",
+                                        display: "block",
+                                        margin: "0 auto",
+                                        borderRadius: 12,
+                                    }}
+                                    draggable="false"
+                                />
+                            ) : (
+                                <div
+                                    style={{
+                                        width: 280,
+                                        height: 280,
+                                        margin: "0 auto",
+                                        backgroundColor: "#F0F0F0",
+                                        borderRadius: 16,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        fontSize: 64,
+                                    }}
+                                >
+                                    ❗
+                                    <br />
+                                    <span style={{ fontSize: 16, color: "#666" }}>
+                                        QR 없음
+                                    </span>
+                                </div>
+                            )}
 
                             <p
                                 style={{
@@ -1145,6 +1120,7 @@ export default function GuideMap() {
                     </div>
                 </div>
             )}
+
         </div>
     );
 }
