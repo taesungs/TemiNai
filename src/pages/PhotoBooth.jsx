@@ -63,10 +63,10 @@ const PhotoBooth = () => {
       const ratioY = frameHeight / origH;
 
       const basePositions = [
-        { x: 832, y: 97, w: 320, h: 400 },
-        { x: 1214, y: 97, w: 320, h: 400 },
-        { x: 832, y: 655, w: 320, h: 400 },
-        { x: 1214, y: 650, w: 320, h: 400 },
+        { x: 784, y: 97, w: 330, h: 400 },
+        { x: 1195, y: 97, w: 330, h: 400 },
+        { x: 784, y: 655, w: 330, h: 400 },
+        { x: 1195, y: 650, w: 330, h: 400 },
       ];
 
       const positions = basePositions.map((p) => ({
