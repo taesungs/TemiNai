@@ -350,7 +350,7 @@ const Recommendation = () => {
       {!selected ? (
         <div
           style={{
-            width: "250%",
+            width: "150%",
             borderTop: "3px solid #2EA3B7",
           }}
         >
