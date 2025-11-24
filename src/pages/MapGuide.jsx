@@ -15,6 +15,7 @@ export default function GuideMap() {
     const [showIntro, setShowIntro] = useState(false); // 1단계 부스 설명 팝업
     const [isConfirmOpen, setIsConfirmOpen] = useState(false); // 2단계 이동 팝업
     const [startMessage, setStartMessage] = useState("");
+    const [isGoHome, setIsGoHome] = useState(false);
 
     // 도착 이후 흐름용 상태
     const [showArrivedPopup, setShowArrivedPopup] = useState(false); // 목적지 도착
@@ -65,7 +66,8 @@ export default function GuideMap() {
 
     // 지능형 로봇 부스인지 확인
     const isIntelligentRobotBooth = (booth) => {
-        return (
+      console.log("###### isIntelligentRobotBooth: "+ booth)
+        return (      
             booth?.id === "intelligent robot" || booth?.name === "지능형 로봇"
         );
     };
@@ -122,21 +124,23 @@ export default function GuideMap() {
     const startNavigation = (booth) => {
         console.log("Start navigation to:", booth);
 
-        if (window.TemiInterface && window.TemiInterface.goTo) {
-            window.TemiInterface.goTo(booth.poi);
+        if (window.TemiInterface && window.TemiInterface.goToBooth) {
+            window.TemiInterface.goToBooth(booth.poi);
+            console.log("🚀 Navigation started to:", booth.poi);
+            // 도착 여부는 onGoToLocationStatusChanged 이벤트로 판독
         }
     };
 
     const handleConfirmNo = () => {
         setIsConfirmOpen(false);
-        setSelectedBooth(null);
     };
 
     // 시작 지점으로 보내는 함수
     const goToStartPoint = () => {
-        console.log("Go to start point");
-        if (window.TemiInterface && window.TemiInterface.goTo) {
-            window.TemiInterface.goTo(START_POI_NAME);
+        console.log("🏠 Returning to start point");
+        if (window.TemiInterface && window.TemiInterface.goToBooth) {
+            window.TemiInterface.goToBooth(START_POI_NAME);
+            console.log("🚀 Navigation started to start point:", START_POI_NAME);
         }
     };
 
@@ -149,8 +153,8 @@ export default function GuideMap() {
         // 2초 후 분기 처리
         setTimeout(() => {
             setShowArrivedPopup(false);
-
             // 지능형 로봇 부스인 경우 QR 팝업
+            console.log("selectedBooth: " + selectedBooth);
             if (isIntelligentRobotBooth(selectedBooth)) {
                 setShowQrPopup(true);
                 speak(
@@ -161,6 +165,7 @@ export default function GuideMap() {
                 speak("테미를 계속 이용하시겠습니까?");
             }
         }, 4000);
+
     };
 
     // QR 팝업 닫기 → 계속 이용 여부 팝업으로
@@ -193,7 +198,7 @@ export default function GuideMap() {
     const startInactivityWatchdog = () => {
         clearInactivityWatchdog();
 
-        const id = setTimeout(() => {
+        const id = setTimeout(() => { 
             speak("안전을 위해 시작 지점으로 복귀합니다.");
             goHome(); // 홈 화면으로 이동
             goToStartPoint();
@@ -228,28 +233,38 @@ export default function GuideMap() {
 
     // Temi 이동 상태 이벤트로 목적지 도착 감지
     useEffect(() => {
-        if (!window.TemiInterface || !window.TemiInterface.addListener) return;
+        console.log("🔧 Setting up navigation listener...");
 
+        // 리스너 저장소 초기화
+        if (!window.TemiInterface._listeners) {
+            window.TemiInterface._listeners = {};
+        }
+
+        // 리스너 함수 정의
         const listener = (event) => {
-            console.log("🚙 Temi 이동 이벤트:", event);
+            console.log("🚙 Temi 이동 이벤트 수신:", event);
 
             if (event?.status?.toLowerCase() === "complete") {
-                handleArrived(); // ← 여기서 새 도착 플로우 실행
+                console.log("✅ 목적지 도착!");
+                handleArrived();
             }
         };
 
-        window.TemiInterface.addListener(
-            "onGoToLocationStatusChanged",
-            listener
-        );
+        // 리스너 저장
+        window.TemiInterface._listeners["onGoToLocationStatusChanged"] = listener;
+
+        // Android에 리스너 등록 알림
+        if (window.TemiInterface.addListener) {
+            window.TemiInterface.addListener("onGoToLocationStatusChanged");
+            console.log("✅ Navigation listener registered");
+        }
 
         return () => {
+            console.log("🧹 Removing navigation listener...");
             if (window.TemiInterface.removeListener) {
-                window.TemiInterface.removeListener(
-                    "onGoToLocationStatusChanged",
-                    listener
-                );
+                window.TemiInterface.removeListener("onGoToLocationStatusChanged");
             }
+            delete window.TemiInterface._listeners["onGoToLocationStatusChanged"];
         };
     }, []);
 
