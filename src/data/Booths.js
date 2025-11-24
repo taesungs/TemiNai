@@ -2,12 +2,14 @@
 export const booths = [
 
     {
-      id: "rest area 1",
+      id: "rest area",
+      poi: "rest area 1",
       name: "휴게 공간",
       style: { top: "4%", left: "7.5%", width: "19%", height: "3%" },
     },
     {
-      id: "rest area 2",
+      id: "rest area",
+      poi: "rest area 2",
       name: "휴게 공간",
       style: { top: "3%", left: "55.5%", width: "30%", height: "4%" },
     },

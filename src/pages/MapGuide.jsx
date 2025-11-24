@@ -295,7 +295,7 @@ export default function GuideMap() {
                 className="flex flex-col items-center cursor-pointer select-none"
                 style={{
                     position: "fixed",
-                    top: "15%",
+                    top: "5%",
                     left: "15%",
                     zIndex: 30,
                 }}
