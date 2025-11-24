@@ -189,7 +189,7 @@ export default function GuideMap() {
         }, 5000);
     };
 
-    // 1분 무조작 자동 복귀 타이머 시작/초기화
+    // 1분 무조작 자동 복귀 타이머 시작/초기화 + 1분 후 자동으로 홈 화면으로 이동
     const startInactivityWatchdog = () => {
         clearInactivityWatchdog();
 
@@ -399,15 +399,17 @@ export default function GuideMap() {
                         }}
                     >
                         {/* 헤더 - 그라디언트 배경 */}
-                        <div className="px-5 pt-4 pb-3 bg-gradient-to-r from-[#02A4D3] to-[#0284c7] text-white">
-                            <h2 className="text-xl font-extrabold mb-1 flex items-center gap-2">
-                                <span className="text-2xl">🎯</span>
-                                체험 프로그램
-                            </h2>
-                            <p className="text-[12px] text-white/90 leading-snug">
-                                카테고리를 펼쳐서 부스를 찾거나, 지도에서 직접
-                                눌러보세요
-                            </p>
+                        <div className="pt-4 pb-3 bg-gradient-to-r from-[#02A4D3] to-[#0284c7] text-white">
+                            <div className="px-4">
+                                <h2 className="text-xl font-extrabold mb-1 flex items-center gap-2 justify-center">
+                                    <span className="text-2xl">🎯</span>
+                                    체험 프로그램
+                                </h2>
+                                <p className="text-[12px] text-white/90 leading-snug text-center">
+                                    카테고리를 펼쳐서 부스를 찾거나, 지도에서 직접
+                                    눌러보세요
+                                </p>
+                            </div>
                         </div>
 
                         {/* 카테고리별 아코디언 목록 */}
@@ -570,10 +572,11 @@ export default function GuideMap() {
                         <p
                             style={{
                                 fontSize: 18,
-                                fontWeight: 600,
+                                fontWeight: 800,
                                 lineHeight: 1.5,
                                 marginBottom: 12,
                                 color: "#111111",
+
                             }}
                         >
                             {`${selectedBooth.name} 부스에서는`}
