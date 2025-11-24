@@ -10,7 +10,6 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [countdown, setCountdown] = useState(null);
-  const [flash, setFlash] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
 
   useEffect(() => {
@@ -43,11 +42,6 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
           setCountdown(t);
           await new Promise((res) => setTimeout(res, 1000));
         }
-
-        // 플래시 효과
-        setFlash(true);
-        await new Promise((res) => setTimeout(res, 150));
-        setFlash(false);
 
         // 실제 촬영
         const photo = await capturePhoto();
@@ -94,7 +88,20 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         sy = (video.videoHeight - sHeight) / 2;
       }
 
-      ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(
+        video,
+        sx,
+        sy,
+        sWidth,
+        sHeight,
+        -targetW,
+        0,
+        targetW,
+        targetH
+      );
+      ctx.restore();
       const photoData = canvas.toDataURL("image/png");
       resolve(photoData);
     });
@@ -107,7 +114,12 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         autoPlay
         playsInline
         className="rounded-xl border shadow-md"
-        style={{ width: "320px", height: "410px", objectFit: "cover" }}
+        style={{
+          width: "320px",
+          height: "410px",
+          objectFit: "cover",
+          transform: "scaleX(-1)",
+        }}
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
@@ -125,11 +137,6 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
         >
           {countdown}
         </div>
-      )}
-
-      {/* 플래시 효과 */}
-      {flash && (
-        <div className="absolute inset-0 bg-white opacity-90 animate-pulse"></div>
       )}
     </div>
   );
