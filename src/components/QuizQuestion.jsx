@@ -7,35 +7,33 @@ export default function QuizQuestion({
   category,
   time = 15,
 }) {
-  // ✅ 영어 카테고리 → 한글 매핑
   const categoryNames = {
     coshow: "행사",
     busan: "부산",
     common: "일반 상식",
   };
 
-  // 전달된 category를 한글로 변환, 없으면 기본값 '퀴즈'
   const displayCategory = categoryNames[category] || "퀴즈";
 
   return (
     <div className="flex flex-col items-center justify-center">
       {/* 상단 제목 + 로봇 */}
-      <div className="flex items-center gap-2 mb-[50px]">
-        <img src={robotImg} alt="robot" className="w-[70px] h-[70px]" />
-        <h2 className="text-[#0D98BA] text-[30px] font-bold text-lg">
+      <div className="flex items-center gap-2 mb-[40px]">
+        <img src={robotImg} alt="robot" className="w-[55px] h-[55px]" />
+        <h2 className="text-[#0D98BA] text-[26px] font-bold">
           [{displayCategory} 퀴즈]
         </h2>
       </div>
 
       {/* 문제 박스 */}
-      <div className="w-[1100px] h-[90px] border-[6px] border-[#0D98BA] rounded-full px-10 py-4 mb-[50px] flex items-center justify-center">
-        <p className="text-[36px] font-extrabold text-black text-center">
+      <div className="w-[900px] h-[80px] border-[6px] border-[#0D98BA] rounded-full px-8 py-3 mb-[40px] flex items-center justify-center">
+        <p className="text-[30px] font-extrabold text-black text-center">
           {question}
         </p>
       </div>
 
       {/* 타이머 바 */}
-      <div className="w-[1100px] h-[30px] border-4 border-[#000000] rounded-full overflow-hidden bg-[#000000] relative mb-[50px]">
+      <div className="w-[900px] h-[25px] border-4 border-[#000000] rounded-full overflow-hidden bg-[#000000] relative mb-[45px]">
         <div
           className="h-full rounded-full transition-all duration-[1000ms] ease-linear origin-left"
           style={{
@@ -48,15 +46,15 @@ export default function QuizQuestion({
       </div>
 
       {/* O / X 버튼 */}
-      <div className="flex gap-[200px]">
+      <div className="flex gap-[150px]">
         {/* O 버튼 */}
         <button
           onClick={() => onAnswer("O")}
-          className="w-[320px] h-[400px] border-[6px] border-[#0080FF] text-[#0080FF]
-                     rounded-[30px] text-[70px] font-extrabold bg-white
+          className="w-[260px] h-[330px] border-[6px] border-[#0080FF] text-[#0080FF]
+                     rounded-[30px] text-[60px] font-extrabold bg-white
                      hover:bg-blue-50 transition-all duration-200
                      flex items-center justify-center
-                     shadow-[0_10px_25px_rgba(0,128,255,0.3)] hover:shadow-[0_15px_35px_rgba(0,128,255,0.45)]"
+                     shadow-[0_8px_20px_rgba(0,128,255,0.25)] hover:shadow-[0_12px_30px_rgba(0,128,255,0.4)]"
           style={{
             backgroundColor: "white",
             WebkitAppearance: "none",
@@ -70,11 +68,11 @@ export default function QuizQuestion({
         {/* X 버튼 */}
         <button
           onClick={() => onAnswer("X")}
-          className="w-[320px] h-[400px] border-[6px] border-[#FF0000] text-[#FF0000]
-                     rounded-[30px] text-[70px] font-extrabold bg-white
+          className="w-[260px] h-[330px] border-[6px] border-[#FF0000] text-[#FF0000]
+                     rounded-[30px] text-[60px] font-extrabold bg-white
                      hover:bg-red-50 transition-all duration-200
                      flex items-center justify-center
-                     shadow-[0_10px_25px_rgba(255,0,0,0.3)] hover:shadow-[0_15px_35px_rgba(255,0,0,0.45)]"
+                     shadow-[0_8px_20px_rgba(255,0,0,0.25)] hover:shadow-[0_12px_30px_rgba(255,0,0,0.4)]"
           style={{
             backgroundColor: "white",
             WebkitAppearance: "none",
