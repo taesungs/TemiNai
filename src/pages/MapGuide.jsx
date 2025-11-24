@@ -175,17 +175,8 @@ export default function GuideMap() {
         // 2초 후 분기 처리
         setTimeout(() => {
             setShowArrivedPopup(false);
-            // 지능형 로봇 부스인 경우 QR 팝업
-            console.log("selectedBooth: " + selectedBooth);
-            if (isIntelligentRobotBooth(selectedBooth)) {
-                setShowQrPopup(true);
-                speak(
-                    "웨이팅 나우 QR 코드를 확인하세요. 스캔하면 대기 없이 체험할 수 있습니다."
-                );
-            } else {
                 setShowContinuePopup(true);
                 speak("테미를 계속 이용하시겠습니까?");
-            }
         }, 4000);
 
     };
@@ -477,33 +468,48 @@ export default function GuideMap() {
                                                     toggleCategory(category)
                                                 }
                                                 className="
-    w-full
-    flex items-center justify-between
-    bg-gradient-to-r from-white to-gray-50
-    hover:from-[#02A4D3]/5 hover:to-[#02A4D3]/10
-    transition-all duration-200
-  "
+                                                w-full
+                                                flex items-center justify-between
+                                                bg-gradient-to-r from-white to-gray-50
+                                                hover:from-[#02A4D3]/5 hover:to-[#02A4D3]/10
+                                                transition-all duration-200
+                                                "
                                                 style={{
                                                     padding: "18px 20px", // ← 세로·가로 패딩 크게
                                                     minHeight: 64, // ← 최소 높이 64px
+                                                    backgroundColor:
+                                                        category === "지능형로봇" ? "rgba(0, 170, 255, 0.08)" : "white",
                                                 }}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-9 h-9 rounded-full bg-[#02A4D3]/10 flex items-center justify-center">
-                                                        <span className="text-[15px] font-bold text-[#02A4D3]">
+                                                        <span
+                                                            className="text-[15px] font-bold"
+                                                            style={{
+                                                                color: category === "지능형로봇" ? "#02A4D3" : "#02A4D3",
+                                                            }}
+                                                        >
                                                             {events.length}
                                                         </span>
                                                     </div>
-                                                    <span className="text-[16px] font-bold text-gray-800">
+
+                                                     <span
+                                                        className="text-[16px] font-bold"
+                                                        style={{
+                                                            color: category === "지능형로봇" ? "#02A4D3" : "#000",
+                                                        }}
+                                                    >
                                                         {category}
                                                     </span>
                                                 </div>
+
                                                 <div
                                                     className="text-[#02A4D3] transition-transform duration-200 text-xl"
                                                     style={{
                                                         transform: isExpanded
                                                             ? "rotate(180deg)"
                                                             : "rotate(0deg)",
+                                                            color: category === "지능형 로봇" ? "#02A4D3" : "#02A4D3",
                                                     }}
                                                 >
                                                     ▼
@@ -947,204 +953,193 @@ export default function GuideMap() {
             )}
 
             {/* 웨이팅 나우 QR 코드 팝업 (지능형 로봇 전용) */}
-            {showQrPopup && (
-                <div
-                    style={{
-                        position: "fixed",
-                        inset: 0,
-                        backgroundColor: "rgba(0,0,0,0.6)",
-                        zIndex: 58,
-                    }}
-                >
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            background:
-                                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            borderRadius: 32,
-                            padding: "32px 40px",
-                            minWidth: 400,
-                            maxWidth: "90vw",
-                            textAlign: "center",
-                            boxShadow: "0 30px 60px rgba(102, 126, 234, 0.5)",
-                            border: "4px solid #FFD700",
-                        }}
-                    >
-                        {/* 헤더 */}
-                        <div
-                            style={{
-                                fontSize: 32,
-                                marginBottom: 16,
-                            }}
-                        >
-                            ⭐ 🤖 ⭐
-                        </div>
+{showQrPopup && (
+  <div
+    style={{
+      position: "fixed",
+      inset: 0,
+      backgroundColor: "rgba(0,0,0,0.6)",
+      zIndex: 999,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 8,             // 화면이 작을 때 여백
+    }}
+  >
+    <div
+      style={{
+        // 🔵 absolute/transform 없애고 flex 가운데 정렬만 사용
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        borderRadius: 32,
+        padding: "16px 20px",
+        width: "100%",
+        maxWidth: "420px",      // 팝업 가로 최대
+        maxHeight: "calc(100vh - 24px)",
+        overflowY: "auto",
+        textAlign: "center",
+        boxShadow: "0 30px 60px rgba(102, 126, 234, 0.5)",
+        border: "4px solid #FFD700",
+      }}
+    >
+      {/* 헤더 */}
+      <div
+        style={{
+          fontSize: 28,
+          marginBottom: 8,
+        }}
+      >
+        ⭐ 🤖 ⭐
+      </div>
 
-                        <h2
-                            style={{
-                                fontSize: 24,
-                                fontWeight: 700,
-                                color: "#FFD700",
-                                marginBottom: 12,
-                            }}
-                        >
-                            지능형 로봇 사업단
-                        </h2>
+      <h2
+        style={{
+          fontSize: 22,
+          fontWeight: 700,
+          color: "#FFD700",
+          marginBottom: 8,
+        }}
+      >
+        지능형 로봇 사업단
+      </h2>
 
-                        <p
-                            style={{
-                                fontSize: 16,
-                                fontWeight: 600,
-                                color: "#FFFFFF",
-                                marginBottom: 24,
-                                lineHeight: 1.6,
-                            }}
-                        >
-                            🎫 웨이팅 나우 QR 코드
-                            <br />
-                            <span style={{ fontSize: 14, color: "#E0E0E0" }}>
-                                스캔하면 대기 없이 바로 체험!
-                            </span>
-                        </p>
+      <p
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: "#FFFFFF",
+          marginBottom: 16,
+          lineHeight: 1.6,
+        }}
+      >
+        🎫 웨이팅 나우 QR 코드
+        <br />
+        <span style={{ fontSize: 14, color: "#E0E0E0" }}>
+          스캔하면 대기 없이 바로 체험!
+        </span>
+      </p>
 
-                        {/* QR 코드 영역 */}
-                        <div
-                            style={{
-                                backgroundColor: "#FFFFFF",
-                                borderRadius: 24,
-                                padding: "32px",
-                                marginBottom: 24,
-                                boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-                            }}
-                        >
-                            {/* 실제 QR 코드 이미지 표시 */}
-                            <div
-                                style={{
-                                    backgroundColor: "#FFFFFF",
-                                    borderRadius: 24,
-                                    padding: "32px",
-                                    marginBottom: 24,
-                                    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-                                }}
-                            >
-                                {currentQr ? (
-                                    <img
-                                        src={currentQr}
-                                        alt="QR 코드"
-                                        style={{
-                                            width: 280,
-                                            height: 280,
-                                            objectFit: "contain",
-                                            display: "block",
-                                            margin: "0 auto",
-                                            borderRadius: 12,
-                                        }}
-                                        draggable="false"
-                                    />
-                                ) : (
-                                    <div
-                                        style={{
-                                            width: 280,
-                                            height: 280,
-                                            margin: "0 auto",
-                                            backgroundColor: "#F0F0F0",
-                                            borderRadius: 16,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontSize: 64,
-                                        }}
-                                    >
-                                        ❗
-                                        <br />
-                                        <span style={{ fontSize: 16, color: "#666" }}>
-                                            QR 없음
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
+      {/* QR 코드 영역 */}
+      <div
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderRadius: 20,
+          padding: "20px",
+          marginBottom: 16,
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+        }}
+      >
+        {currentQr ? (
+          <img
+            src={currentQr}
+            alt="QR 코드"
+            style={{
+              width: 200,
+              height: 200,
+              objectFit: "contain",
+              display: "block",
+              margin: "0 auto",
+              borderRadius: 12,
+            }}
+            draggable="false"
+          />
+        ) : (
+          <div
+            style={{
+              width: 200,
+              height: 200,
+              margin: "0 auto",
+              backgroundColor: "#F0F0F0",
+              borderRadius: 16,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 48,
+            }}
+          >
+            ❗
+            <br />
+            <span style={{ fontSize: 14, color: "#666" }}>QR 없음</span>
+          </div>
+        )}
 
+        <p
+          style={{
+            marginTop: 12,
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#667eea",
+          }}
+        >
+          카메라로 스캔해주세요
+        </p>
+      </div>
 
-                            <p
-                                style={{
-                                    marginTop: 16,
-                                    fontSize: 14,
-                                    fontWeight: 600,
-                                    color: "#667eea",
-                                }}
-                            >
-                                카메라로 스캔해주세요
-                            </p>
-                        </div>
+      {/* 안내 문구 */}
+      <div
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.15)",
+          borderRadius: 16,
+          padding: "10px 14px",
+          marginBottom: 14,
+        }}
+      >
+        <p
+          style={{
+            fontSize: 13,
+            color: "#FFD700",
+            fontWeight: 600,
+            marginBottom: 6,
+          }}
+        >
+          💡 체험 혜택
+        </p>
+        <ul
+          style={{
+            fontSize: 12,
+            color: "#FFFFFF",
+            textAlign: "left",
+            lineHeight: 1.8,
+            paddingLeft: 18,
+            margin: 0,
+          }}
+        >
+          <li>대기 시간 없이 우선 체험</li>
+          <li>AI 교육용 로봇 직접 조종</li>
+          <li>보행 로봇 체험</li>
+        </ul>
+      </div>
 
-                        {/* 안내 문구 */}
-                        <div
-                            style={{
-                                backgroundColor: "rgba(255, 255, 255, 0.15)",
-                                borderRadius: 16,
-                                padding: "16px 20px",
-                                marginBottom: 24,
-                            }}
-                        >
-                            <p
-                                style={{
-                                    fontSize: 14,
-                                    color: "#FFD700",
-                                    fontWeight: 600,
-                                    marginBottom: 8,
-                                }}
-                            >
-                                💡 체험 혜택
-                            </p>
-                            <ul
-                                style={{
-                                    fontSize: 13,
-                                    color: "#FFFFFF",
-                                    textAlign: "left",
-                                    lineHeight: 1.8,
-                                    paddingLeft: 20,
-                                    margin: 0,
-                                }}
-                            >
-                                <li>대기 시간 없이 우선 체험</li>
-                                <li>AI 교육용 로봇 직접 조종</li>
-                                <li>보행 로봇 체험</li>
-                            </ul>
-                        </div>
+      {/* 확인 버튼 */}
+      <button
+        onClick={handleQrClose}
+        style={{
+          width: "100%",
+          padding: "12px 20px",
+          borderRadius: 999,
+          border: "3px solid #FFD700",
+          backgroundColor: "#FFFFFF",
+          color: "#667eea",
+          fontWeight: 700,
+          fontSize: 16,
+          cursor: "pointer",
+          transition: "all 0.3s",
+          boxShadow: "0 6px 16px rgba(255, 215, 0, 0.4)",
+        }}
+        onMouseOver={(e) => {
+          e.target.style.backgroundColor = "#FFD700";
+          e.target.style.color = "#FFFFFF";
+        }}
+        onMouseOut={(e) => {
+          e.target.style.backgroundColor = "#FFFFFF";
+          e.target.style.color = "#667eea";
+        }}
+      >
+        ✅ 확인
+      </button>
+    </div>
+  </div>
+)}
 
-                        {/* 확인 버튼 */}
-                        <button
-                            onClick={handleQrClose}
-                            style={{
-                                width: "100%",
-                                padding: "14px 24px",
-                                borderRadius: 999,
-                                border: "3px solid #FFD700",
-                                backgroundColor: "#FFFFFF",
-                                color: "#667eea",
-                                fontWeight: 700,
-                                fontSize: 18,
-                                cursor: "pointer",
-                                transition: "all 0.3s",
-                                boxShadow: "0 6px 20px rgba(255, 215, 0, 0.4)",
-                            }}
-                            onMouseOver={(e) => {
-                                e.target.style.backgroundColor = "#FFD700";
-                                e.target.style.color = "#FFFFFF";
-                            }}
-                            onMouseOut={(e) => {
-                                e.target.style.backgroundColor = "#FFFFFF";
-                                e.target.style.color = "#667eea";
-                            }}
-                        >
-                            ✅ 확인
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
