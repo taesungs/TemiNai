@@ -21,6 +21,7 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error("getUserMedia not supported in this WebView");
+      alert("카메라를 지원하지 않는 브라우저입니다.");
       return false;
     }
 
@@ -39,16 +40,29 @@ const CameraPreview = forwardRef(({ onAllPhotosCaptured }, ref) => {
           await video.play();
         } catch (e) {
           console.error("video.play() error:", e);
+          alert("비디오 재생 실패: " + e.message);
         }
       }
 
       setHasStream(true);
-      console.log("Camera started");
+      console.log("Camera started successfully");
       return true;
     } catch (err) {
       const name = err && err.name ? err.name : "";
       const message = err && err.message ? err.message : err;
       console.error("Camera access error:", name, message);
+
+      // 사용자에게 명확한 에러 메시지 표시
+      if (name === "NotAllowedError") {
+        alert("카메라 권한이 거부되었습니다. 브라우저 설정에서 카메라 권한을 허용해주세요.");
+      } else if (name === "NotFoundError") {
+        alert("카메라를 찾을 수 없습니다.");
+      } else if (name === "NotReadableError") {
+        alert("카메라가 다른 앱에서 사용 중입니다.");
+      } else {
+        alert("카메라 접근 실패: " + message);
+      }
+
       return false;
     }
   };
