@@ -257,9 +257,15 @@ export default function GuideMap() {
     useEffect(() => {
         console.log("🔧 Setting up navigation listener...");
 
+        // 🔹 Temi 없는 웹 환경이면 바로 종료
+        if (!window.TemiInterface) {
+            console.log("ℹ️ TemiInterface 없음(웹 환경) → 리스너 등록 생략");
+            return;
+        }
+
         // 리스너 저장소 초기화
         if (!window.TemiInterface._listeners) {
-            window.TemiInterface._listeners = {};
+         window.TemiInterface._listeners = {};
         }
 
         // 리스너 함수 정의
@@ -283,12 +289,15 @@ export default function GuideMap() {
 
         return () => {
             console.log("🧹 Removing navigation listener...");
-            if (window.TemiInterface.removeListener) {
+            if (window.TemiInterface && window.TemiInterface.removeListener) {
                 window.TemiInterface.removeListener("onGoToLocationStatusChanged");
             }
-            delete window.TemiInterface._listeners["onGoToLocationStatusChanged"];
+            if (window.TemiInterface && window.TemiInterface._listeners) {
+                delete window.TemiInterface._listeners["onGoToLocationStatusChanged"];
+            }
         };
     }, []);
+
 
     // 글자를 소리로 읽어주는 함수
     function speak(text) {
@@ -333,7 +342,7 @@ export default function GuideMap() {
                 style={{
                     position: "fixed",
                     top: "5%",
-                    left: "15%",
+                    left: "5%",
                     zIndex: 30,
                 }}
             >
