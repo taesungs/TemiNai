@@ -24,24 +24,33 @@ export default function MenuGrid() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
-      {/* gap을 키워 카드들 간의 간격 확보 */}
-      <div className="grid grid-cols-4 gap-20 w-[90vw] max-w-[1600px] p-12">
-        {menuItems.map((item) => (
-          <div
-            key={item.title}
-            onClick={() => navigate(item.path)}
-            className="aspect-square flex flex-col items-center justify-center border-2 border-gray-500 rounded-lg bg-white shadow-sm hover:shadow-lg hover:scale-105 transition-transform cursor-pointer"
-          >
-            <img
-              src={item.icon}
-              alt={item.title}
-              className="w-40 h-40 object-contain mb-4"
-            />
-            <p className="text-gray-700 text-xl font-medium">{item.title}</p>
+    <div className="flex flex-col min-h-screen bg-white">
+      
+      {/* 상단 그리드 영역 */}
+      <div className="flex flex-1 items-center justify-center">
+          <div className="grid grid-cols-4 gap-20 w-[90vw] max-w-[1600px] p-12">
+              {menuItems.map((item) => (
+                  <div
+                      key={item.title}
+                      onClick={() => navigate(item.path)}
+                      className="aspect-square flex flex-col items-center justify-center border-2 border-gray-500 rounded-lg bg-white shadow-sm hover:shadow-lg hover:scale-105 transition-transform cursor-pointer"
+                  >
+                      <img
+                          src={item.icon}
+                          alt={item.title}
+                          className="w-40 h-40 object-contain mb-4"
+                      />
+                      <p className="text-gray-700 text-xl font-medium">{item.title}</p>
+                  </div>
+              ))}
           </div>
-        ))}
       </div>
+
+      {/* 화면 맨 아래 고정 멘트 */}
+      <div className="w-full text-center py-6 text-gray-500 text-lg">
+        본 서비스는 We-Met 수업 프로젝트 결과물로 제작되었습니다.
+      </div>
+
     </div>
   );
 }
