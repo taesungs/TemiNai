@@ -159,10 +159,13 @@ export default function GuideMap() {
 
     // 시작 지점으로 보내는 함수
     const goToStartPoint = () => {
-        console.log("🏠 Returning to start point");
+        console.log("[MapGuide] 🏠 goToStartPoint 호출됨");
+        console.log("[MapGuide] 목표 POI:", START_POI_NAME);
         if (window.TemiInterface && window.TemiInterface.goToBooth) {
             window.TemiInterface.goToBooth(START_POI_NAME);
-            console.log("🚀 Navigation started to start point:", START_POI_NAME);
+            console.log("[MapGuide] 🚀 시작 지점으로 내비게이션 시작:", START_POI_NAME);
+        } else {
+            console.error("[MapGuide] ❌ TemiInterface.goToBooth 없음!");
         }
     };
 
@@ -190,17 +193,20 @@ export default function GuideMap() {
 
     // 예(계속 이용) 클릭 → 페이지 유지 + 1분 무조작 자동 복귀
     const handleContinueYes = () => {
+        console.log("[MapGuide] ✅ 사용자가 '계속 이용' 선택");
         setShowContinuePopup(false);
         startInactivityWatchdog();
     };
 
     // 아니오(이용 종료) 클릭 → 5초 후 시작점 복귀
     const handleContinueNo = () => {
+        console.log("[MapGuide] ❌ 사용자가 '이용 종료' 선택");
         setShowContinuePopup(false);
         setShowReturningPopup(true);
         speak("안전을 위해 시작 지점으로 복귀합니다.");
 
         setTimeout(() => {
+            console.log("[MapGuide] ⏱️ 5초 대기 완료, 복귀 시작");
             setShowReturningPopup(false);
             goToStartPoint();
             clearInactivityWatchdog();
@@ -209,9 +215,12 @@ export default function GuideMap() {
 
     // 1분 무조작 자동 복귀 타이머 시작/초기화 + 1분 후 자동으로 홈 화면으로 이동
     const startInactivityWatchdog = () => {
+        console.log("[MapGuide] 🕐 startInactivityWatchdog 호출됨");
         clearInactivityWatchdog();
 
-        const id = setTimeout(() => { 
+        const id = setTimeout(() => {
+            console.log("[MapGuide] ⏰ 1분 타이머 만료! 시작 지점으로 복귀 시작");
+            console.log("[MapGuide] 현재 페이지: /guide (MapGuide.jsx)");
             speak("안전을 위해 시작 지점으로 복귀합니다.");
             goHome(); // 홈 화면으로 이동
             goToStartPoint();
@@ -219,26 +228,37 @@ export default function GuideMap() {
         }, 60 * 1000); // 1분
 
         inactivityTimerRef.current = id;
+        console.log("[MapGuide] ✅ 타이머 설정 완료, ID:", id);
     };
 
     const clearInactivityWatchdog = () => {
         if (inactivityTimerRef.current) {
+            console.log("[MapGuide] 🧹 타이머 제거, ID:", inactivityTimerRef.current);
             clearTimeout(inactivityTimerRef.current);
             inactivityTimerRef.current = null;
+        } else {
+            console.log("[MapGuide] ℹ️ 제거할 타이머 없음");
         }
     };
 
     // 사용자 터치/클릭이 있을 때마다 타이머 리셋 (타이머가 켜져 있을 때만)
     useEffect(() => {
         const handleUserInteraction = () => {
-            if (!inactivityTimerRef.current) return; // 활성화된 타이머 없으면 무시
+            if (!inactivityTimerRef.current) {
+                console.log("[MapGuide] 👆 사용자 인터랙션 감지, 하지만 타이머 비활성 상태");
+                return; // 활성화된 타이머 없으면 무시
+            }
+            console.log("[MapGuide] 👆 사용자 인터랙션 감지! 타이머 리셋");
             startInactivityWatchdog();
         };
 
+        console.log("[MapGuide] 🎯 사용자 인터랙션 리스너 등록");
         window.addEventListener("click", handleUserInteraction);
         window.addEventListener("touchstart", handleUserInteraction);
 
         return () => {
+            console.log("[MapGuide] 🧹 컴포넌트 언마운트: 타이머 및 리스너 제거");
+            clearInactivityWatchdog(); // 타이머 제거
             window.removeEventListener("click", handleUserInteraction);
             window.removeEventListener("touchstart", handleUserInteraction);
         };

@@ -201,48 +201,38 @@ export default function SecurityMonitor() {
   };
 
   return (
-    <div className="min-h-screen w-screen bg-white flex flex-col overflow-hidden">
-      {/* 상단 바 */}
-      <div className="w-full h-14 flex items-center justify-center">
-        <h1 className="text-2xl font-extrabold text-[#02A4D3]">
-          실내 이상행동 모니터링
-        </h1>
-      </div>
-
-      {/* 홈 버튼 – Temi 스타일 맞추기 */}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white relative overflow-hidden">
+      {/* 홈 버튼 (왼쪽 상단 고정, 화살표 2개) */}
       <div
         onClick={goHome}
-        className="flex flex-col items-center cursor-pointer select-none"
-        style={{
-          position: "fixed",
-          top: "15%",
-          left: "15%",
-          zIndex: 30,
-        }}
+        className="absolute top-[100px] left-[0px] flex flex-col items-center cursor-pointer"
       >
-        <span className="text-[30px] font-semibold text-black mb-1">홈</span>
-        <div className="flex items-center" style={{ gap: "7px" }}>
+        <span className="text-[30px] font-bold text-gray-700">홈</span>
+        <div className="flex flex-row gap-[4px] mb-1">
           <img
             src={backImg}
-            alt="뒤로가기"
-            style={{ width: 30, height: 25, display: "block" }}
-            draggable="false"
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
           />
           <img
             src={backImg}
-            alt="뒤로가기"
-            style={{ width: 30, height: 25, display: "block", marginLeft: -4 }}
-            draggable="false"
+            alt="back"
+            className="w-[30px] h-[30px] object-contain"
           />
         </div>
       </div>
 
-      {/* 메인 레이아웃 */}
-      <div className="flex-1 flex flex-row items-start justify-center px-6 gap-6 py-4 max-w-[1200px] mx-auto w-full">
+      {/* 제목 */}
+      <h1 className="text-[50px] font-extrabold text-[#0D98BA] mb-8 drop-shadow-sm">
+        실내 이상행동 모니터링
+      </h1>
+
+      {/* 메인 컨텐츠 영역 */}
+      <div className="flex flex-row items-start justify-center gap-6 w-full max-w-[1200px] px-6">
         {/* 왼쪽: 카메라 + 현재 상태 */}
-        <div className="flex-1 flex flex-col gap-4 min-w-[0]">
+        <div className="flex-1 flex flex-col gap-4">
           {/* 카메라 영상 자리 */}
-          <div className="relative bg-black rounded-2xl overflow-hidden h-[320px] shadow-md">
+          <div className="relative bg-black rounded-2xl overflow-hidden h-[320px] shadow-lg">
             <div className="w-full h-full flex items-center justify-center text-gray-300 text-lg">
               테미 카메라 실시간 영상 영역
             </div>
@@ -250,85 +240,86 @@ export default function SecurityMonitor() {
           </div>
 
           {/* 현재 분석 상태 카드 */}
-          <div className="bg-[#f7fafc] rounded-2xl p-4 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-bold text-gray-800">현재 상태</h2>
+          <div className="bg-[#F0F8FF] rounded-2xl p-5 shadow-md border-2 border-[#0D98BA]/20">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-bold text-gray-800">현재 상태</h2>
               <span className="text-xs text-gray-500">
                 {monitoring && frameCount > 0 ? (
                   <span className="text-emerald-600 font-semibold">
                     프레임: {frameCount}개 전송됨
                   </span>
                 ) : (
-                  "로봇: 1대 · 카메라: 테미 전면 카메라"
+                  "로봇: 1대 · 카메라: 테미 전면"
                 )}
               </span>
             </div>
 
             {lastResult ? (
-              <div className="space-y-1 text-sm text-gray-800">
+              <div className="space-y-2 text-base text-gray-800">
                 <p>
-                  <span className="font-semibold">카메라：</span>
+                  <span className="font-bold text-[#0D98BA]">카메라：</span>
                   {lastResult.camera || "테미 카메라"}
                 </p>
                 <p>
-                  <span className="font-semibold">판정：</span>
-                  {lastResult.isAbnormal ? "이상행동 감지" : "정상"}
+                  <span className="font-bold text-[#0D98BA]">판정：</span>
+                  <span className={lastResult.isAbnormal ? "text-red-600 font-semibold" : "text-green-600 font-semibold"}>
+                    {lastResult.isAbnormal ? "이상행동 감지" : "정상"}
+                  </span>
                 </p>
                 <p>
-                  <span className="font-semibold">유형：</span>
+                  <span className="font-bold text-[#0D98BA]">유형：</span>
                   {lastResult.label}
                 </p>
                 <p>
-                  <span className="font-semibold">신뢰도：</span>
+                  <span className="font-bold text-[#0D98BA]">신뢰도：</span>
                   {Math.round((lastResult.score || 0) * 100)}%
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-2 pt-2 border-t border-gray-300">
                   감지 시각：{lastResult.time}
                 </p>
               </div>
             ) : monitoring && frameCount > 0 ? (
-              <div className="text-sm text-gray-700">
-                <p className="font-semibold mb-2">
+              <div className="text-base text-gray-700">
+                <p className="font-bold mb-3 text-[#0D98BA]">
                   📊 버퍼링 중...
                 </p>
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-3 overflow-hidden">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-[#0D98BA] h-3 rounded-full transition-all duration-300"
                     style={{ width: `${Math.min((frameCount / REQUIRED_FRAMES) * 100, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-600">
                   {frameCount} / {REQUIRED_FRAMES} 프레임 수집 완료
                   <br />
                   분석을 위해 {REQUIRED_FRAMES}개의 프레임이 필요합니다.
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">
-                아직 감지된 기록이 없습니다. 아래 모니터링 버튼을 눌러
-                실시간 분석을 시작해 보세요.
+              <p className="text-base text-gray-600 leading-relaxed">
+                아직 감지된 기록이 없습니다. 아래 모니터링 버튼을 눌러 실시간 분석을 시작해 보세요.
               </p>
             )}
           </div>
 
           {/* 모니터링 토글 버튼 */}
-          <div className="flex justify-center mt-2">
+          <div className="flex justify-center mt-4">
             <button
               onClick={toggleMonitoring}
-              className={`px-8 py-3 rounded-full text-lg font-semibold flex items-center gap-3 shadow-md transition ${
+              className={`px-12 py-4 rounded-full text-2xl font-extrabold flex items-center gap-3 shadow-lg transition-transform transform ${
                 monitoring
-                  ? "bg-gray-500 text-white hover:bg-gray-600"
-                  : "bg-[#e53935] text-white hover:bg-[#c62828]"
+                  ? "bg-gray-500 text-white hover:bg-gray-600 active:scale-95"
+                  : "bg-[#0D98BA] text-white hover:bg-[#0a7a96] active:scale-95"
               }`}
             >
               {monitoring ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="w-3 h-3 rounded-full bg-white" />
                   모니터링 중지
                 </>
               ) : (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-white" />
+                  <span className="w-3 h-3 rounded-full bg-white" />
                   실시간 모니터링 시작
                 </>
               )}
@@ -337,38 +328,38 @@ export default function SecurityMonitor() {
         </div>
 
         {/* 오른쪽: 감지 로그 */}
-        <aside className="w-[340px] bg-[#f7fafc] border border-gray-200 rounded-2xl py-4 px-3 shadow-sm flex flex-col h-[420px]">
-          <h2 className="text-lg font-bold text-gray-800 mb-1">감지 기록</h2>
-          <p className="text-xs text-gray-500 mb-3">
+        <aside className="w-[380px] bg-[#F0F8FF] border-2 border-[#0D98BA]/20 rounded-2xl py-5 px-4 shadow-md flex flex-col h-[520px]">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">감지 기록</h2>
+          <p className="text-sm text-gray-600 mb-4">
             실시간 모니터링 중 이상행동이 감지되면 이곳에 순서대로 쌓입니다.
           </p>
 
-          <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-1">
             {logs.length === 0 && (
-              <p className="text-xs text-gray-400">아직 기록이 없습니다.</p>
+              <p className="text-sm text-gray-400 text-center mt-8">아직 기록이 없습니다.</p>
             )}
 
             {logs.map((item, idx) => (
               <div
                 key={idx}
-                className={`rounded-xl px-3 py-2 text-xs border ${
+                className={`rounded-xl px-4 py-3 text-sm border-2 shadow-sm ${
                   item.isAbnormal
-                    ? "bg-red-50 border-red-200 text-red-800"
-                    : "bg-white border-gray-200 text-gray-700"
+                    ? "bg-red-50 border-red-300 text-red-900"
+                    : "bg-white border-gray-300 text-gray-700"
                 }`}
               >
-                <div className="flex justify-between mb-1">
-                  <span className="font-semibold">
-                    {item.isAbnormal ? "이상행동" : "정상"}
+                <div className="flex justify-between mb-2">
+                  <span className="font-bold text-base">
+                    {item.isAbnormal ? "⚠️ 이상행동" : "✅ 정상"}
                   </span>
-                  <span className="text-[10px] text-gray-500">
+                  <span className="text-xs text-gray-500">
                     {item.time}
                   </span>
                 </div>
-                <p className="truncate">
+                <p className="truncate text-sm">
                   {item.camera || "테미 카메라"} · {item.label}
                 </p>
-                <p className="text-[10px] mt-1 text-gray-500">
+                <p className="text-xs mt-1 text-gray-500">
                   신뢰도: {Math.round((item.score || 0) * 100)}%
                 </p>
               </div>
